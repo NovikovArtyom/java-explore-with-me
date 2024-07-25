@@ -27,7 +27,7 @@ public interface HitRepository extends JpaRepository<HitEntity, Long> {
             "WHERE h.timestamp BETWEEN :start AND :end " +
             "AND (:uris IS NULL OR h.uri IN :uris) " +
             "GROUP BY h.app, h.uri " +
-            "ORDER BY count(DISTINCT h.ip) DESC")
+            "ORDER BY count(DISTINCT (h.ip)) DESC")
     List<StatsView> getUniqueStats(@Param("start") LocalDateTime start,
                                    @Param("end") LocalDateTime end,
                                    @Param("uris") List<String> uris);
