@@ -16,7 +16,7 @@ public class BaseClient {
     }
 
     protected ResponseEntity<Object> get(String path) {
-        return get(path);
+        return makeAndSendRequest(HttpMethod.GET, path, null, null);
     }
 
     protected ResponseEntity<Object> get(String path, @Nullable Map<String, Object> parameters) {
@@ -24,11 +24,11 @@ public class BaseClient {
     }
 
     protected <T> ResponseEntity<Object> post(String path, T body) {
-        return post(path, body);
+        return makeAndSendRequest(HttpMethod.POST, path, null, body);
     }
 
     protected <T> ResponseEntity<Object> post(String path, long userId, T body) {
-        return post(path, userId, null, body);
+        return makeAndSendRequest(HttpMethod.POST, path, null, body);
     }
 
     protected <T> ResponseEntity<Object> post(String path, Long userId, @Nullable Map<String, Object> parameters, T body) {
@@ -36,7 +36,7 @@ public class BaseClient {
     }
 
     protected <T> ResponseEntity<Object> put(String path, T body) {
-        return put(path, body);
+        return makeAndSendRequest(HttpMethod.PUT, path, null, body);
     }
 
     protected <T> ResponseEntity<Object> put(String path, @Nullable Map<String, Object> parameters, T body) {
