@@ -18,6 +18,5 @@ public class HitDtoRequest {
     @NotBlank
     private String ip;
     @NotNull
-    @NotBlank
     private String timestamp;
 }

@@ -7,6 +7,7 @@ import ru.yandex.practicum.statsservicedto.StatsDtoResponse;
 import ru.yandex.practicum.statsserviceserver.model.HitEntity;
 import ru.yandex.practicum.statsserviceserver.model.view.StatsView;
 
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -47,6 +48,7 @@ public class StatsMapper {
     }
 
     public static LocalDateTime asLocalDateTime(String timestamp) {
-        return LocalDateTime.parse(timestamp, DateTimeFormatter.ofPattern(FORMATTER));
+        String decodedDate = URLDecoder.decode(timestamp, StandardCharsets.UTF_8);
+        return LocalDateTime.parse(decodedDate, DateTimeFormatter.ofPattern(FORMATTER));
     }
 }

@@ -15,19 +15,19 @@ public interface HitRepository extends JpaRepository<HitEntity, Long> {
     @Query("SELECT new ru.yandex.practicum.statsserviceserver.model.view.StatsView(h.app, h.uri, count(h.ip)) " +
             "FROM HitEntity AS h " +
             "WHERE h.timestamp BETWEEN :start AND :end " +
-            "AND (:uris IS NULL OR h.uri IN :uris) " +
+            "AND ((:uris) IS NULL OR h.uri IN (:uris)) " +
             "GROUP BY h.app, h.uri " +
             "ORDER BY count(h.ip) DESC")
     List<StatsView> getStats(@Param("start") LocalDateTime start,
                              @Param("end") LocalDateTime end,
                              @Param("uris") List<String> uris);
 
-    @Query("SELECT new ru.yandex.practicum.statsserviceserver.model.view.StatsView(h.app, h.uri, count(DISTINCT(h.ip))) " +
+    @Query("SELECT new ru.yandex.practicum.statsserviceserver.model.view.StatsView(h.app, h.uri, count(DISTINCT h.ip)) " +
             "FROM HitEntity AS h " +
             "WHERE h.timestamp BETWEEN :start AND :end " +
-            "AND (:uris IS NULL OR h.uri IN :uris) " +
+            "AND ((:uris) IS NULL OR h.uri IN (:uris)) " +
             "GROUP BY h.app, h.uri " +
-            "ORDER BY count(DISTINCT (h.ip)) DESC")
+            "ORDER BY count(DISTINCT h.ip) DESC")
     List<StatsView> getUniqueStats(@Param("start") LocalDateTime start,
                                    @Param("end") LocalDateTime end,
                                    @Param("uris") List<String> uris);

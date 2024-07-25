@@ -22,7 +22,6 @@ public class StatsServiceImpl implements StatsService {
     @Override
     public HitEntity addHit(HitEntity hitEntity) {
         log.info("Запрос попал в метод сервиса - addHit");
-        hitEntity.setTimestamp(LocalDateTime.now());
         return hitRepository.save(hitEntity);
     }
 
@@ -31,12 +30,11 @@ public class StatsServiceImpl implements StatsService {
         log.info("Запрос попал в метод сервиса - getStats");
         if (start.isAfter(end)) {
             throw new IncorrectDateException("Дата начала интервала поиска не может быть позднее даты окончания интервала поиска");
+        }
+        if (unique) {
+            return hitRepository.getUniqueStats(start, end, uris);
         } else {
-            if (unique) {
-                return hitRepository.getUniqueStats(start, end, uris);
-            } else {
-                return hitRepository.getStats(start, end, uris);
-            }
+            return hitRepository.getStats(start, end, uris);
         }
     }
 }
