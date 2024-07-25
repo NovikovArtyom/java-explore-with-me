@@ -20,6 +20,7 @@ public class StatsServiceImpl implements StatsService {
 
     @Override
     public HitEntity addHit(HitEntity hitEntity) {
+        hitEntity.setTimestamp(LocalDateTime.now());
         return hitRepository.save(hitEntity);
     }
 
