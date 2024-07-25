@@ -11,11 +11,14 @@ import ru.yandex.practicum.statsserviceserver.mapper.StatsMapper;
 import ru.yandex.practicum.statsserviceserver.service.StatsService;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping
 @Validated
+
 public class StatsController {
     private final StatsService statsService;
 
@@ -30,11 +33,14 @@ public class StatsController {
     }
 
     @GetMapping("/stats")
-    public ResponseEntity<List<StatsDtoResponse>> getStats(@RequestParam(required = true)LocalDateTime start,
-                                                           @RequestParam(required = true)LocalDateTime end,
+    public ResponseEntity<List<StatsDtoResponse>> getStats(@RequestParam(required = true)String start,
+                                                           @RequestParam(required = true)String end,
                                                            @RequestParam(required = false)List<String> uris,
                                                            @RequestParam(required = false, defaultValue = "false")Boolean unique) {
-        return ResponseEntity.ok(statsService.getStats(start, end, uris, unique).stream()
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime localDateTimeStart = LocalDateTime.parse(start, formatter);
+        LocalDateTime localDateTimeEnd = LocalDateTime.parse(end, formatter);
+        return ResponseEntity.ok(statsService.getStats(localDateTimeStart, localDateTimeEnd, uris, unique).stream()
                 .map(StatsMapper.INSTANCE::statsViewToStatsDtoResponse)
                 .collect(Collectors.toList()));
     }

@@ -9,6 +9,7 @@
     </parent>
 
     <artifactId>stats-service-client</artifactId>
+    <name>stats-service-client</name>
 
     <properties>
         <java.version>21</java.version>
@@ -38,8 +39,8 @@
             <groupId>ru.yandex.practicum</groupId>
             <artifactId>stats-service-dto</artifactId>
             <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
+
     </dependencies>
 
 </project>

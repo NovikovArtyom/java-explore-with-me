@@ -1,5 +1,6 @@
 package ru.yandex.practicum.statsserviceserver.service;
 
+import org.springframework.stereotype.Service;
 import ru.yandex.practicum.statsserviceserver.exception.IncorrectDateException;
 import ru.yandex.practicum.statsserviceserver.model.HitEntity;
 import ru.yandex.practicum.statsserviceserver.model.view.StatsView;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class StatsServiceImpl implements StatsService {
     private final HitRepository hitRepository;
 

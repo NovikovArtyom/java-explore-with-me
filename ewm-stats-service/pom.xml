@@ -12,9 +12,9 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>stats-service-dto</module>
         <module>stats-service-client</module>
         <module>stats-service-server</module>
-        <module>stats-service-dto</module>
     </modules>
 
     <properties>

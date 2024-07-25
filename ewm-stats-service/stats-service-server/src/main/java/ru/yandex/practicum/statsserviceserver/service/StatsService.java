@@ -7,7 +7,6 @@ import ru.yandex.practicum.statsserviceserver.model.view.StatsView;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Service
 public interface StatsService {
     HitEntity addHit(HitEntity hitEntity);
 

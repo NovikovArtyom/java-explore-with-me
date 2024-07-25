@@ -10,6 +10,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.yandex.practicum.statsserviceclient.constants.ApiPrefix;
 import ru.yandex.practicum.statsservicedto.HitDtoRequest;
 
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;

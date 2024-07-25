@@ -10,7 +10,7 @@ services:
     environment:
       - POSTGRES_USERNAME=postgres
       - POSTGRES_PASSWORD=postgres
-      - DB_HOST=db
+      - DB_HOST=stats-db
       - DB_NAME=ewm-stats
       - DB_PORT=5432
 
@@ -34,7 +34,7 @@ services:
     environment:
       - POSTGRES_USERNAME=postgres
       - POSTGRES_PASSWORD=postgres
-      - DB_HOST=db
+      - DB_HOST=ewm-db
       - DB_NAME=ewm-main
       - DB_PORT=5432
 
