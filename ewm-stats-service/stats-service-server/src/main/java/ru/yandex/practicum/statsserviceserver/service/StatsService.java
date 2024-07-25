@@ -1,8 +1,8 @@
 package ru.yandex.practicum.statsserviceserver.service;
 
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.statsservicedto.HitDtoResponse;
 import ru.yandex.practicum.statsserviceserver.model.HitEntity;
+import ru.yandex.practicum.statsserviceserver.model.view.StatsView;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,5 +11,5 @@ import java.util.List;
 public interface StatsService {
     HitEntity addHit(HitEntity hitEntity);
 
-    List<HitEntity> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique);
+    List<StatsView> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique);
 }

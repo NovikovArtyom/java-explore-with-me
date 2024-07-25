@@ -1,9 +1,12 @@
 package ru.yandex.practicum.statsserviceserver.service;
 
+import ru.yandex.practicum.statsserviceserver.exception.IncorrectDateException;
 import ru.yandex.practicum.statsserviceserver.model.HitEntity;
+import ru.yandex.practicum.statsserviceserver.model.view.StatsView;
 import ru.yandex.practicum.statsserviceserver.repository.HitRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class StatsServiceImpl implements StatsService {
@@ -19,28 +22,14 @@ public class StatsServiceImpl implements StatsService {
     }
 
     @Override
-    public List<HitEntity> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        if (uris != null && unique) {
-            //запрос к базе
-        } else if (uris != null && !unique) {
-            //запрос к базе
-        } else if (uris == null && unique) {
-            //запрос к базе
-        } else {
-            //запрос к базе
-        }
-
-        if (uris != null) {
-            if (unique) {
-                //запрос к базе
-            } else {
-                //запрос к базе
-            }
+    public List<StatsView> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+        if (start.isAfter(end)) {
+            throw new IncorrectDateException("Дата начала интервала поиска не может быть позднее даты окончания интервала поиска");
         } else {
             if (unique) {
-                //запрос к базе
+                return hitRepository.getUniqueStats(start, end, uris);
             } else {
-                //запрос к базе
+                return hitRepository.getStats(start, end, uris);
             }
         }
     }
