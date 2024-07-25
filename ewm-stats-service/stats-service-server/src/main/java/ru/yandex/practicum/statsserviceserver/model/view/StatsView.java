@@ -3,7 +3,6 @@ package ru.yandex.practicum.statsserviceserver.model.view;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 @Getter
 @AllArgsConstructor

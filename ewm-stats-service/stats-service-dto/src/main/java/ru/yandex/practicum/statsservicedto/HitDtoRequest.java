@@ -4,8 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
-
 @Getter
 public class HitDtoRequest {
     @NotNull
@@ -16,7 +14,8 @@ public class HitDtoRequest {
     private String uri;
     @NotNull
     @NotBlank
-    private String api;
+    private String ip;
     @NotNull
-    private LocalDateTime timestamp;
+    @NotBlank
+    private String timestamp;
 }

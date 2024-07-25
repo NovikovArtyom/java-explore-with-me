@@ -1,6 +1,5 @@
 package ru.yandex.practicum.statsserviceserver.service;
 
-import org.springframework.stereotype.Service;
 import ru.yandex.practicum.statsserviceserver.model.HitEntity;
 import ru.yandex.practicum.statsserviceserver.model.view.StatsView;
 

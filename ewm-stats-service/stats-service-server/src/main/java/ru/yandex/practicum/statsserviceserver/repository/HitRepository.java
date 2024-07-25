@@ -1,6 +1,5 @@
 package ru.yandex.practicum.statsserviceserver.repository;
 
-import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,6 +16,7 @@ public interface HitRepository extends JpaRepository<HitEntity, Long> {
             "FROM HitEntity AS h " +
             "WHERE h.timestamp BETWEEN :start AND :end " +
             "AND (:uris IS NULL OR h.uri IN :uris) " +
+            "GROUP BY h.app, h.uri " +
             "ORDER BY count(h.ip) DESC")
     List<StatsView> getStats(@Param("start") LocalDateTime start,
                              @Param("end") LocalDateTime end,
@@ -26,7 +26,8 @@ public interface HitRepository extends JpaRepository<HitEntity, Long> {
             "FROM HitEntity AS h " +
             "WHERE h.timestamp BETWEEN :start AND :end " +
             "AND (:uris IS NULL OR h.uri IN :uris) " +
-            "ORDER BY count((DISTINCT(h.ip))) DESC")
+            "GROUP BY h.app, h.uri " +
+            "ORDER BY count(DISTINCT h.ip) DESC")
     List<StatsView> getUniqueStats(@Param("start") LocalDateTime start,
                                    @Param("end") LocalDateTime end,
                                    @Param("uris") List<String> uris);

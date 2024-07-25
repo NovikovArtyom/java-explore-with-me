@@ -1,24 +1,27 @@
 package ru.yandex.practicum.statsserviceserver.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import lombok.*;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "hit")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 public class HitEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String app;
     private String uri;
     private String ip;
-    @Column(name="hit_timestamp")
+    @Column(name = "hit_timestamp")
     private LocalDateTime timestamp;
 
     @Override
