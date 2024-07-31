@@ -36,8 +36,36 @@ public class ExceptionController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handle(final UserNotFoundException e) {
         Long userId = e.getUserId();
-        log.error(String.format("Пользователь с id = %s", userId));
+        log.error(String.format("Пользователь с id = %s не зарегистрирован", userId));
         return new ErrorResponse(HttpStatus.NOT_FOUND.toString(), "The required object was not found.",
                 String.format("User with id=%s was not found", userId), LocalDateTime.now().format(formatter));
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handle(final IncorrectEventDateException e) {
+        String field = e.getField();
+        String message = e.getMessage();
+        String value = e.getValue().format(formatter);
+        log.error("Условия не соблюдены!");
+        return new ErrorResponse(HttpStatus.FORBIDDEN.toString(), "For the requested operation the conditions are not met.",
+                String.format("Field: %s. Error: %s. Value: %s", field, message, value), LocalDateTime.now().format(formatter));
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handle(final IncorrectEventStateException e) {
+        log.error("Условия не соблюдены!");
+        return new ErrorResponse(HttpStatus.FORBIDDEN.toString(), "For the requested operation the conditions are not met.",
+                "Only pending or canceled events can be changed", LocalDateTime.now().format(formatter));
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handle(final EventNotFoundException e) {
+        Long eventId = e.getEventId();
+        log.error(String.format("Событие с id = %s не зарегистрировано", eventId));
+        return new ErrorResponse(HttpStatus.NOT_FOUND.toString(), "The required object was not found.",
+                String.format("Event with id=%s was not found", eventId), LocalDateTime.now().format(formatter));
     }
 }
