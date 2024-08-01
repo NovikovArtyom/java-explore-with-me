@@ -11,4 +11,6 @@ public interface UserService {
     UserEntity addUser(UserEntity userEntity);
 
     void deleteUser(Long userId);
+
+    UserEntity findUserById(Long userId);
 }

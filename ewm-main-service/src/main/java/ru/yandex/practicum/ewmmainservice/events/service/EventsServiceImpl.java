@@ -3,6 +3,8 @@ package ru.yandex.practicum.ewmmainservice.events.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.ewmmainservice.categories.model.CategoriesEntity;
 import ru.yandex.practicum.ewmmainservice.categories.service.CategoriesService;
 import ru.yandex.practicum.ewmmainservice.events.dto.PatchEventRequestDto;
@@ -38,6 +40,7 @@ public class EventsServiceImpl implements EventsService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public EventsEntity addEvent(Long userId, EventsEntity eventsEntity) {
         if (userService.findAllUsers(0, 1, List.of(userId)).isEmpty()) {
             if (!eventsEntity.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
@@ -60,6 +63,7 @@ public class EventsServiceImpl implements EventsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<EventsEntity> getAllEventsByUserId(Long userId, Integer from, Integer size) {
         if (!userService.findAllUsers(0, 1, List.of(userId)).isEmpty()) {
             return eventsRepository.findAllByInitiator_Id(userId, PageRequest.of(from, size));
@@ -69,6 +73,7 @@ public class EventsServiceImpl implements EventsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventsEntity getEventsByIdByUserId(Long userId, Long eventId) {
         if (eventsRepository.existsByIdAndInitiator_Id(eventId, userId)) {
             return eventsRepository.findByIdAndInitiator_Id(eventId, userId);
@@ -78,6 +83,7 @@ public class EventsServiceImpl implements EventsService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public EventsEntity patchEvent(Long userId, Long eventId, PatchEventRequestDto patchEventRequestDto) {
         if (eventsRepository.existsByIdAndInitiator_Id(eventId, userId)) {
             LocalDateTime eventDateTime = LocalDateTime.parse(patchEventRequestDto.getEventDate(), formatter);
@@ -99,6 +105,7 @@ public class EventsServiceImpl implements EventsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<EventsEntity> getAllEvents(
             List<Long> users, List<EventsStates> states, List<Long> categories, String rangeStart, String rangeEnd,
             Integer from, Integer size
@@ -108,6 +115,7 @@ public class EventsServiceImpl implements EventsService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public EventsEntity patchEventStatus(Long eventId, PatchEventRequestDto patchEventRequestDto) {
         EventsEntity event = eventsRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
         if (!event.getCreatedOn().isBefore(LocalDateTime.now().plusHours(1))) {
@@ -131,14 +139,18 @@ public class EventsServiceImpl implements EventsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<EventsEntity> getAllEventsWithFiltration(
             String text, List<Long> categories, Boolean paid, String rangeStart, String rangeEnd, Boolean onlyAvailable,
             String sort, Integer from, Integer size
     ) {
-
+        return eventsRepository.getAllEventsWithSort("%" + text.toLowerCase() + "%", categories, paid,
+                LocalDateTime.parse(rangeStart, formatter), LocalDateTime.parse(rangeEnd, formatter), onlyAvailable,
+                sort, PageRequest.of(from, size));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventsEntity getEventsById(Long id) {
         if (eventsRepository.existsById(id)) {
             return eventsRepository.findByIdAndStates(id, EventsStates.PUBLISHED);

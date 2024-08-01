@@ -68,4 +68,22 @@ public class ExceptionController {
         return new ErrorResponse(HttpStatus.NOT_FOUND.toString(), "The required object was not found.",
                 String.format("Event with id=%s was not found", eventId), LocalDateTime.now().format(formatter));
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handle(final RequestException e) {
+        String message = e.getMessage();
+        String description = e.getDescription();
+        log.error(message);
+        return new ErrorResponse(HttpStatus.CONFLICT.toString(), message, description, LocalDateTime.now().format(formatter));
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handle(final RequestNotFoundException e) {
+        Long requestId = e.getRequestId();
+        log.error(String.format("Заявка с id = %s не зарегистрирована", requestId));
+        return new ErrorResponse(HttpStatus.NOT_FOUND.toString(), "The required object was not found.",
+                String.format("Request with id=%s was not found", requestId), LocalDateTime.now().format(formatter));
+    }
 }
