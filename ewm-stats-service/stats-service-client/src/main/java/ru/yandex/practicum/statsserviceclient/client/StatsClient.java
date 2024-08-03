@@ -21,12 +21,11 @@ import java.util.Map;
 
 @Service
 public class StatsClient extends BaseClient {
-    @Autowired
     public StatsClient(@Value("${stats-service-server.url}") String serverUrl, RestTemplateBuilder builder) {
         super(
                 builder
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
-                        .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
+                        .requestFactory(HttpComponentsClientHttpRequestFactory::new)
                         .build()
         );
     }

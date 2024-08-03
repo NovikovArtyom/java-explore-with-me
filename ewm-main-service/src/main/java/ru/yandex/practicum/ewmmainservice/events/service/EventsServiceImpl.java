@@ -18,6 +18,7 @@ import ru.yandex.practicum.ewmmainservice.exception.IncorrectEventStateException
 import ru.yandex.practicum.ewmmainservice.exception.UserNotFoundException;
 import ru.yandex.practicum.ewmmainservice.location.model.LocationEntity;
 import ru.yandex.practicum.ewmmainservice.location.repository.LocationRepository;
+import ru.yandex.practicum.ewmmainservice.requests.model.RequestEntity;
 import ru.yandex.practicum.ewmmainservice.user.service.UserService;
 
 import java.time.LocalDateTime;

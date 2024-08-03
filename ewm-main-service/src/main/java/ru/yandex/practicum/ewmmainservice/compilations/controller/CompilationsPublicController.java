@@ -1,12 +1,12 @@
-package ru.yandex.practicum.ewmmainservice.events.controller;
+package ru.yandex.practicum.ewmmainservice.compilations.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.ewmmainservice.compilations.dto.CompilationsDtoResponse;
+import ru.yandex.practicum.ewmmainservice.compilations.service.CompilationsService;
 import ru.yandex.practicum.ewmmainservice.constants.ServiceConstants;
-import ru.yandex.practicum.ewmmainservice.events.dto.EventResponseDto;
-import ru.yandex.practicum.ewmmainservice.events.service.EventsService;
-import ru.yandex.practicum.ewmmainservice.mapper.EventsMapper;
+import ru.yandex.practicum.ewmmainservice.mapper.CompilationsMapper;
 import ru.yandex.practicum.statsserviceclient.client.StatsClient;
 import ru.yandex.practicum.statsservicedto.HitDtoRequest;
 
@@ -16,34 +16,29 @@ import javax.validation.constraints.PositiveOrZero;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.ewmmainservice.constants.ServiceConstants.formatter;
 
 @RestController
-@RequestMapping("/events")
+@RequestMapping("/compilations")
 @Validated
-public class EventsPublicController {
-    private final EventsService eventsService;
-    private final EventsMapper eventsMapper;
+public class CompilationsPublicController {
+    private final CompilationsService compilationService;
+    private final CompilationsMapper compilationsMapper;
     private final StatsClient statsClient;
 
-    public EventsPublicController(EventsService eventsService, EventsMapper eventsMapper, StatsClient statsClient) {
-        this.eventsService = eventsService;
-        this.eventsMapper = eventsMapper;
+    public CompilationsPublicController(CompilationsService compilationService, CompilationsMapper compilationsMapper, StatsClient statsClient) {
+        this.compilationService = compilationService;
+        this.compilationsMapper = compilationsMapper;
         this.statsClient = statsClient;
     }
 
     @GetMapping
-    public ResponseEntity<List<EventResponseDto>> getAllEventsWithFiltration(
-            @RequestParam(required = false, defaultValue = "") String text,
-            @RequestParam(required = false) List<Long> categories,
-            @RequestParam(required = false) Boolean paid,
-            @RequestParam(required = false) String rangeStart,
-            @RequestParam(required = false) String rangeEnd,
-            @RequestParam(required = false, defaultValue = "false") Boolean onlyAvailable,
-            @RequestParam(required = false) String sort,
+    public ResponseEntity<List<CompilationsDtoResponse>> getAllCompilations(
+            @RequestParam(required = false) Boolean pinned,
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
             @PositiveOrZero @RequestParam(required = false, defaultValue = "10") Integer size,
             HttpServletRequest request
@@ -51,22 +46,21 @@ public class EventsPublicController {
         statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRemoteAddr(), request.getRequestURI(),
                 URLEncoder.encode(LocalDateTime.now().format(formatter), StandardCharsets.UTF_8)));
         return ResponseEntity.ok(
-                eventsService.getAllEventsWithFiltration(text, categories, paid, rangeStart, rangeEnd, onlyAvailable,
-                                sort, from, size).stream()
-                        .map(eventsMapper::fromEventsEntityToEventResponseDto)
+                compilationService.getAllCompilations(pinned, from, size).stream()
+                        .map(compilationsMapper::fromCompilationsEntityToCompilationsDtoResponse)
                         .collect(Collectors.toList())
         );
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<EventResponseDto> getEventsById(
-            @Positive @PathVariable Long id,
+    @GetMapping("/{compId}")
+    public ResponseEntity<CompilationsDtoResponse> getCompilationById(
+            @Positive @PathVariable Long compId,
             HttpServletRequest request
     ) {
         statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRemoteAddr(), request.getRequestURI(),
                 URLEncoder.encode(LocalDateTime.now().format(formatter), StandardCharsets.UTF_8)));
         return ResponseEntity.ok(
-                eventsMapper.fromEventsEntityToEventResponseDto(eventsService.getEventsById(id))
+                compilationsMapper.fromCompilationsEntityToCompilationsDtoResponse(compilationService.getCompilationById(compId))
         );
     }
 }

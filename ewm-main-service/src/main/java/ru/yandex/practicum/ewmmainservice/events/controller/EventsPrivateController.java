@@ -8,6 +8,11 @@ import ru.yandex.practicum.ewmmainservice.events.dto.EventResponseDto;
 import ru.yandex.practicum.ewmmainservice.events.dto.PatchEventRequestDto;
 import ru.yandex.practicum.ewmmainservice.events.service.EventsService;
 import ru.yandex.practicum.ewmmainservice.mapper.EventsMapper;
+import ru.yandex.practicum.ewmmainservice.mapper.RequestMapper;
+import ru.yandex.practicum.ewmmainservice.requests.dto.RequestsDtoResponse;
+import ru.yandex.practicum.ewmmainservice.requests.dto.RequestsDtoUpdate;
+import ru.yandex.practicum.ewmmainservice.requests.dto.RequestsDtoUpdateStatus;
+import ru.yandex.practicum.ewmmainservice.requests.service.RequestService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -21,10 +26,15 @@ import java.util.stream.Collectors;
 public class EventsPrivateController {
     private final EventsService eventsService;
     private final EventsMapper eventsMapper;
+    private final RequestService requestService;
+    private final RequestMapper requestMapper;
 
-    public EventsPrivateController(EventsService eventsService, EventsMapper eventsMapper) {
+    public EventsPrivateController(EventsService eventsService, EventsMapper eventsMapper, RequestService requestService,
+                                   RequestMapper requestMapper) {
         this.eventsService = eventsService;
         this.eventsMapper = eventsMapper;
+        this.requestService = requestService;
+        this.requestMapper = requestMapper;
     }
 
     @PostMapping
@@ -67,5 +77,28 @@ public class EventsPrivateController {
         return ResponseEntity.ok(eventsMapper.fromEventsEntityToEventResponseDto(
                 eventsService.patchEvent(userId, eventId, patchEventRequestDto)
         ));
+    }
+
+    @GetMapping("/{eventId}/requests")
+    public ResponseEntity<List<RequestsDtoResponse>> getAllRequestsByEventIdByUserId(
+            @Positive @PathVariable Long userId,
+            @Positive @PathVariable Long eventId
+    ) {
+        return ResponseEntity.ok(
+                requestService.getAllRequestsByEventIdByUserId(userId, eventId).stream()
+                        .map(requestMapper::fromRequestEntityToRequestDtoResponse)
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @PatchMapping("/{eventId}/requests")
+    public ResponseEntity<RequestsDtoUpdateStatus> updateRequestsStatus(
+            @Positive @PathVariable Long userId,
+            @Positive @PathVariable Long eventId,
+            @Valid @RequestBody RequestsDtoUpdate requestsDtoUpdate
+    ) {
+        return ResponseEntity.ok(
+                requestService.updateRequestsStatus(userId, eventId, requestsDtoUpdate)
+        );
     }
 }

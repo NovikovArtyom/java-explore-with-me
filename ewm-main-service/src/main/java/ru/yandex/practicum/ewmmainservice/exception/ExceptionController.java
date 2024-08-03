@@ -13,7 +13,6 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 public class ExceptionController {
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handle(final CategoriesNotFoundException e) {
@@ -86,4 +85,14 @@ public class ExceptionController {
         return new ErrorResponse(HttpStatus.NOT_FOUND.toString(), "The required object was not found.",
                 String.format("Request with id=%s was not found", requestId), LocalDateTime.now().format(formatter));
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handle(final CompilationNotFoundException e) {
+        Long compId = e.getCompId();
+        log.error(String.format("Подборка с id = %s не зарегистрирована!", compId));
+        return new ErrorResponse(HttpStatus.NOT_FOUND.toString(), "The required object was not found.",
+                String.format("Compilation with id=%s was not found", compId), LocalDateTime.now().format(formatter));
+    }
+
 }

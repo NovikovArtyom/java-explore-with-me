@@ -6,8 +6,13 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.ewmmainservice.events.model.EventsEntity;
 import ru.yandex.practicum.ewmmainservice.events.model.EventsStates;
 import ru.yandex.practicum.ewmmainservice.events.service.EventsService;
+import ru.yandex.practicum.ewmmainservice.exception.DataIntegrityViolationException;
+import ru.yandex.practicum.ewmmainservice.exception.EventNotFoundException;
 import ru.yandex.practicum.ewmmainservice.exception.RequestException;
 import ru.yandex.practicum.ewmmainservice.exception.RequestNotFoundException;
+import ru.yandex.practicum.ewmmainservice.mapper.RequestMapper;
+import ru.yandex.practicum.ewmmainservice.requests.dto.RequestsDtoUpdate;
+import ru.yandex.practicum.ewmmainservice.requests.dto.RequestsDtoUpdateStatus;
 import ru.yandex.practicum.ewmmainservice.requests.model.RequestEntity;
 import ru.yandex.practicum.ewmmainservice.requests.model.RequestStatus;
 import ru.yandex.practicum.ewmmainservice.requests.repository.RequestRepository;
@@ -23,11 +28,13 @@ public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
     private final UserService userService;
     private final EventsService eventsService;
+    private final RequestMapper requestMapper;
 
-    public RequestServiceImpl(RequestRepository requestRepository, UserService userService, EventsService eventsService) {
+    public RequestServiceImpl(RequestRepository requestRepository, UserService userService, EventsService eventsService, RequestMapper requestMapper) {
         this.requestRepository = requestRepository;
         this.userService = userService;
         this.eventsService = eventsService;
+        this.requestMapper = requestMapper;
     }
 
     @Override
@@ -52,7 +59,7 @@ public class RequestServiceImpl implements RequestService {
                         if (event.getRequestModeration()) {
                             request.setStatus(RequestStatus.PENDING);
                         } else {
-                            request.setStatus(RequestStatus.ACCEPTED);
+                            request.setStatus(RequestStatus.CONFIRMED);
                         }
                         return requestRepository.save(request);
                     } else {
@@ -81,6 +88,43 @@ public class RequestServiceImpl implements RequestService {
             return requestRepository.save(request);
         } else {
             throw new RequestNotFoundException(requestId);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RequestEntity> getAllRequestsByEventIdByUserId(Long userId, Long eventId) {
+        return requestRepository.getAllRequestsByEventIdByUserId(eventId, userId);
+    }
+
+    @Override
+    public RequestsDtoUpdateStatus updateRequestsStatus(Long userId, Long eventId, RequestsDtoUpdate requestsDtoUpdate) {
+        EventsEntity event = eventsService.getEventsByIdByUserId(userId, eventId);
+        if (event != null) {
+            RequestsDtoUpdateStatus requestsDtoUpdateStatus = new RequestsDtoUpdateStatus();
+            if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
+                return requestsDtoUpdateStatus;
+            } else {
+                requestsDtoUpdate.getRequestIds().forEach(item -> {
+                    RequestEntity request = requestRepository.findById(item).orElseThrow(() -> new RequestNotFoundException(item));
+                    if (event.getConfirmedRequests() < event.getParticipantLimit()) {
+                        if (request.getStatus() == RequestStatus.PENDING) {
+                            request.setStatus(RequestStatus.CONFIRMED);
+                            requestRepository.save(request);
+                            requestsDtoUpdateStatus.getConfirmedRequests().add(requestMapper.fromRequestEntityToRequestDtoResponse(request));
+                        }
+                    } else {
+                        request.setStatus(RequestStatus.REJECTED);
+                        requestRepository.save(request);
+                        requestsDtoUpdateStatus.getRejectedRequests().add(requestMapper.fromRequestEntityToRequestDtoResponse(request));
+                        throw new RequestException("For the requested operation the conditions are not met.",
+                                "The participant limit has been reached");
+                    }
+                });
+                return requestsDtoUpdateStatus;
+            }
+        } else {
+            throw new EventNotFoundException(eventId);
         }
     }
 }
