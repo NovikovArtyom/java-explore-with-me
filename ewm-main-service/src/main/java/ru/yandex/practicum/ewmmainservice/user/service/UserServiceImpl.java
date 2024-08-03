@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
         if (usersIds.isEmpty()) {
             return userRepository.findAll(PageRequest.of(from, size));
         } else {
-            return userRepository.findAllByIdIn(usersIds);
+            return userRepository.findAllByIdIn(usersIds, PageRequest.of(from, size));
         }
     }
 

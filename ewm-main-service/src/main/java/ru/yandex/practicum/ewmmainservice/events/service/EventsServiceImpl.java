@@ -19,6 +19,7 @@ import ru.yandex.practicum.ewmmainservice.exception.UserNotFoundException;
 import ru.yandex.practicum.ewmmainservice.location.model.LocationEntity;
 import ru.yandex.practicum.ewmmainservice.location.repository.LocationRepository;
 import ru.yandex.practicum.ewmmainservice.requests.model.RequestEntity;
+import ru.yandex.practicum.ewmmainservice.user.model.UserEntity;
 import ru.yandex.practicum.ewmmainservice.user.service.UserService;
 
 import java.time.LocalDateTime;
@@ -66,7 +67,9 @@ public class EventsServiceImpl implements EventsService {
     @Override
     @Transactional(readOnly = true)
     public Page<EventsEntity> getAllEventsByUserId(Long userId, Integer from, Integer size) {
-        if (!userService.findAllUsers(0, 1, List.of(userId)).isEmpty()) {
+//        if (!userService.findAllUsers(from, size, List.of(userId)).isEmpty()) {
+        UserEntity user = userService.findUserById(userId);
+        if (user != null) {
             return eventsRepository.findAllByInitiator_Id(userId, PageRequest.of(from, size));
         } else {
             throw new UserNotFoundException(userId);
