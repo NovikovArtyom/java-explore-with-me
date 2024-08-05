@@ -1,11 +1,14 @@
 package ru.yandex.practicum.ewmmainservice.user.dto;
 
-import lombok.AllArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class AddUserRequestDto {
     @NotNull

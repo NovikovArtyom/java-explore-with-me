@@ -1,13 +1,14 @@
 package ru.yandex.practicum.ewmmainservice.categories.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class CategoriesRequestDto {
     @NotNull
     @NotBlank

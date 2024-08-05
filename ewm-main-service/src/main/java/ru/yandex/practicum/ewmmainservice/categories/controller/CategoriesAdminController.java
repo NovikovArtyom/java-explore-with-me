@@ -1,12 +1,13 @@
 package ru.yandex.practicum.ewmmainservice.categories.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.ewmmainservice.categories.dto.CategoriesRequestDto;
 import ru.yandex.practicum.ewmmainservice.categories.dto.AddCategoriesResponseDto;
-import ru.yandex.practicum.ewmmainservice.mapper.CategoriesMapper;
+import ru.yandex.practicum.ewmmainservice.categories.dto.CategoriesRequestDto;
 import ru.yandex.practicum.ewmmainservice.categories.service.CategoriesService;
+import ru.yandex.practicum.ewmmainservice.mapper.CategoriesMapper;
 
 import javax.validation.Valid;
 import javax.validation.constraints.PositiveOrZero;
@@ -25,7 +26,7 @@ public class CategoriesAdminController {
 
     @PostMapping
     public ResponseEntity<AddCategoriesResponseDto> addCategories(@Valid @RequestBody CategoriesRequestDto categoriesRequestDto) {
-        return ResponseEntity.ok(categoriesMapper.fromCategoriesEntityToAddCategoriesResponseDto(
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoriesMapper.fromCategoriesEntityToAddCategoriesResponseDto(
                 categoriesService.addCategories(
                         categoriesMapper.fromAddCategoriesRequestDtoToCategoriesEntity(categoriesRequestDto)
                 )
@@ -33,8 +34,9 @@ public class CategoriesAdminController {
     }
 
     @DeleteMapping("/{catId}")
-    public void deleteCategories(@PositiveOrZero @PathVariable Long catId) {
+    public ResponseEntity<?> deleteCategories(@PositiveOrZero @PathVariable Long catId) {
         categoriesService.deleteCategories(catId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping("/{catId}")

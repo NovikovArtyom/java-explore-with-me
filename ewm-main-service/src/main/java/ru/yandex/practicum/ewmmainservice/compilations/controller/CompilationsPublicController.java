@@ -16,7 +16,6 @@ import javax.validation.constraints.PositiveOrZero;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,12 +27,11 @@ import static ru.yandex.practicum.ewmmainservice.constants.ServiceConstants.form
 public class CompilationsPublicController {
     private final CompilationsService compilationService;
     private final CompilationsMapper compilationsMapper;
-    private final StatsClient statsClient;
+    private StatsClient statsClient;
 
-    public CompilationsPublicController(CompilationsService compilationService, CompilationsMapper compilationsMapper, StatsClient statsClient) {
+    public CompilationsPublicController(CompilationsService compilationService, CompilationsMapper compilationsMapper) {
         this.compilationService = compilationService;
         this.compilationsMapper = compilationsMapper;
-        this.statsClient = statsClient;
     }
 
     @GetMapping

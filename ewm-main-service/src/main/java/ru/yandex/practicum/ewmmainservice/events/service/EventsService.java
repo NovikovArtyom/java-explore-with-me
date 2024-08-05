@@ -4,13 +4,11 @@ import org.springframework.data.domain.Page;
 import ru.yandex.practicum.ewmmainservice.events.dto.PatchEventRequestDto;
 import ru.yandex.practicum.ewmmainservice.events.model.EventsEntity;
 import ru.yandex.practicum.ewmmainservice.events.model.EventsStates;
-import ru.yandex.practicum.ewmmainservice.requests.dto.RequestsDtoResponse;
-import ru.yandex.practicum.ewmmainservice.requests.model.RequestEntity;
 
 import java.util.List;
 
 public interface EventsService {
-    EventsEntity addEvent(Long userId, EventsEntity eventsEntity);
+    EventsEntity addEvent(Long userId, EventsEntity eventsEntity, Long categoryId);
 
     Page<EventsEntity> getAllEventsByUserId(Long userId, Integer from, Integer size);
 

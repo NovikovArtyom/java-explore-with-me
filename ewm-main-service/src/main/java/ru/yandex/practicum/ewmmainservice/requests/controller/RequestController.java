@@ -1,5 +1,6 @@
 package ru.yandex.practicum.ewmmainservice.requests.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -37,11 +38,13 @@ public class RequestController {
     @PostMapping
     public ResponseEntity<RequestsDtoResponse> addRequest(
             @Positive @PathVariable Long userId,
-            @Positive @RequestParam Long eventId
+            @RequestParam Long eventId
     ) {
-        return ResponseEntity.ok(
-                requestMapper.fromRequestEntityToRequestDtoResponse(requestService.addRequest(userId, eventId))
-        );
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(
+                        requestMapper.fromRequestEntityToRequestDtoResponse(requestService.addRequest(userId, eventId))
+                );
     }
 
     @PatchMapping("/{requestId}/cancel")

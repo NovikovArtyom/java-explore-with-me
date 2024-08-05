@@ -18,7 +18,6 @@ import ru.yandex.practicum.ewmmainservice.exception.IncorrectEventStateException
 import ru.yandex.practicum.ewmmainservice.exception.UserNotFoundException;
 import ru.yandex.practicum.ewmmainservice.location.model.LocationEntity;
 import ru.yandex.practicum.ewmmainservice.location.repository.LocationRepository;
-import ru.yandex.practicum.ewmmainservice.requests.model.RequestEntity;
 import ru.yandex.practicum.ewmmainservice.user.model.UserEntity;
 import ru.yandex.practicum.ewmmainservice.user.service.UserService;
 
@@ -43,8 +42,8 @@ public class EventsServiceImpl implements EventsService {
 
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public EventsEntity addEvent(Long userId, EventsEntity eventsEntity) {
-        if (userService.findAllUsers(0, 1, List.of(userId)).isEmpty()) {
+    public EventsEntity addEvent(Long userId, EventsEntity eventsEntity, Long categoryId) {
+        if (!userService.findAllUsers(0, 1, List.of(userId)).isEmpty()) {
             if (!eventsEntity.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
                 LocationEntity location = locationRepository.save(eventsEntity.getLocation());
                 eventsEntity.setLocation(location);
@@ -54,6 +53,7 @@ public class EventsServiceImpl implements EventsService {
                 eventsEntity.setPublishedOn(LocalDateTime.now());
                 eventsEntity.setStates(EventsStates.AWAITING_MODERATION);
                 eventsEntity.setViews(0);
+                eventsEntity.setCategories(categoriesService.findCategoriesById(categoryId));
                 return eventsRepository.save(eventsEntity);
             } else {
                 throw new IncorrectEventDateException("eventDate", "должно содержать дату, которая еще не наступила",
@@ -122,7 +122,7 @@ public class EventsServiceImpl implements EventsService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public EventsEntity patchEventStatus(Long eventId, PatchEventRequestDto patchEventRequestDto) {
         EventsEntity event = eventsRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
-        if (!event.getCreatedOn().isBefore(LocalDateTime.now().plusHours(1))) {
+        if (!event.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
             if (patchEventRequestDto.getStateAction().equals(EventStateAction.PUBLISH_EVENT) &&
                     (event.getStates().equals(EventsStates.AWAITING_MODERATION))) {
                 EventsEntity updatedEvent = patchingEvent(event, patchEventRequestDto);
@@ -148,9 +148,17 @@ public class EventsServiceImpl implements EventsService {
             String text, List<Long> categories, Boolean paid, String rangeStart, String rangeEnd, Boolean onlyAvailable,
             String sort, Integer from, Integer size
     ) {
-        return eventsRepository.getAllEventsWithSort("%" + text.toLowerCase() + "%", categories, paid,
-                LocalDateTime.parse(rangeStart, formatter), LocalDateTime.parse(rangeEnd, formatter), onlyAvailable,
-                sort, PageRequest.of(from, size));
+        LocalDateTime start = rangeStart != null ? LocalDateTime.parse(rangeStart, formatter) : null;
+        LocalDateTime end = rangeEnd != null ? LocalDateTime.parse(rangeEnd, formatter) : null;
+        String formattedText = "%" + text.toLowerCase() + "%";
+        if (start == null || end == null) {
+            return eventsRepository.getAllEventsWithSortWithoutDate(formattedText, categories,
+                    paid, onlyAvailable, sort, PageRequest.of(from, size));
+        } else {
+            return eventsRepository.getAllEventsWithSortWithDate(formattedText, categories, paid,
+                    onlyAvailable, start, end, sort, PageRequest.of(from, size));
+        }
+
     }
 
     @Override

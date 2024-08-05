@@ -11,16 +11,16 @@ import java.util.List;
 
 @Repository
 public interface RequestRepository extends JpaRepository<RequestEntity, Long> {
-    @Query("select r.id, r.created, r.event.id, r.requester.id, r.status from RequestEntity as r where " +
+    @Query("select r from RequestEntity as r where " +
             "r.requester.id=:userId")
-    List<RequestView> findAllByUserId(Long userId);
+    List<RequestEntity> findAllByUserId(Long userId);
 
     Boolean existsByEvent_IdAndRequester_Id(Long eventId, Long userId);
 
     RequestEntity findByIdAndRequester_Id(Long requestId, Long userId);
 
     @Query("select r from RequestEntity as r where " +
-            "r.event.id = :eventId and r.requester.id = :userId")
+            "r.event.id = :eventId and r.event.initiator.id = :userId")
     List<RequestEntity> getAllRequestsByEventIdByUserId(@Param("eventId") Long eventId,
                                                         @Param("userId") Long userId);
 }

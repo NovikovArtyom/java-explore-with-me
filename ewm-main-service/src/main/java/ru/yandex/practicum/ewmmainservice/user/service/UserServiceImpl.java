@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public Page<UserEntity> findAllUsers(Integer from, Integer size, List<Long> usersIds) {
-        if (usersIds.isEmpty()) {
+        if (usersIds == null) {
             return userRepository.findAll(PageRequest.of(from, size));
         } else {
             return userRepository.findAllByIdIn(usersIds, PageRequest.of(from, size));

@@ -42,11 +42,11 @@ public class EventsAdminController {
         );
     }
 
-    @GetMapping("/{eventId}")
+    @PatchMapping("/{eventId}")
     public ResponseEntity<EventResponseDto> patchEventStatus(
             @Positive @PathVariable Long eventId,
             @Valid @RequestBody PatchEventRequestDto patchEventRequestDto
-            ) {
+    ) {
         return ResponseEntity.ok(
                 eventsMapper.fromEventsEntityToEventResponseDto(eventsService.patchEventStatus(eventId, patchEventRequestDto))
         );

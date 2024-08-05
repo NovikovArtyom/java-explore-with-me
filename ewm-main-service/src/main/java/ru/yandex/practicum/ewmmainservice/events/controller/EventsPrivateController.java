@@ -1,5 +1,6 @@
 package ru.yandex.practicum.ewmmainservice.events.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -42,9 +43,12 @@ public class EventsPrivateController {
             @Positive @PathVariable Long userId,
             @Valid @RequestBody AddEventRequestDto addEventRequestDto
     ) {
-        return ResponseEntity.ok(eventsMapper.fromEventsEntityToEventResponseDto(
-                eventsService.addEvent(userId, eventsMapper.fromAddEventRequestDtoToEventsEntity(addEventRequestDto))
-        ));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(eventsMapper.fromEventsEntityToEventResponseDto(eventsService.addEvent(userId,
+                        eventsMapper.fromAddEventRequestDtoToEventsEntity(addEventRequestDto),
+                        addEventRequestDto.getCategory())
+                ));
     }
 
     @GetMapping

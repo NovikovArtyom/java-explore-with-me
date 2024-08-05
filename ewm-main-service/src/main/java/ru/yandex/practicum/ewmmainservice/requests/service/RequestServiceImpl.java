@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.ewmmainservice.events.model.EventsEntity;
 import ru.yandex.practicum.ewmmainservice.events.model.EventsStates;
 import ru.yandex.practicum.ewmmainservice.events.service.EventsService;
-import ru.yandex.practicum.ewmmainservice.exception.DataIntegrityViolationException;
 import ru.yandex.practicum.ewmmainservice.exception.EventNotFoundException;
 import ru.yandex.practicum.ewmmainservice.exception.RequestException;
 import ru.yandex.practicum.ewmmainservice.exception.RequestNotFoundException;
@@ -16,7 +15,6 @@ import ru.yandex.practicum.ewmmainservice.requests.dto.RequestsDtoUpdateStatus;
 import ru.yandex.practicum.ewmmainservice.requests.model.RequestEntity;
 import ru.yandex.practicum.ewmmainservice.requests.model.RequestStatus;
 import ru.yandex.practicum.ewmmainservice.requests.repository.RequestRepository;
-import ru.yandex.practicum.ewmmainservice.requests.views.RequestView;
 import ru.yandex.practicum.ewmmainservice.user.model.UserEntity;
 import ru.yandex.practicum.ewmmainservice.user.service.UserService;
 
@@ -39,7 +37,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<RequestView> getAllRequestsByUserId(Long userId) {
+    public List<RequestEntity> getAllRequestsByUserId(Long userId) {
         return requestRepository.findAllByUserId(userId);
     }
 
@@ -94,7 +92,13 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional(readOnly = true)
     public List<RequestEntity> getAllRequestsByEventIdByUserId(Long userId, Long eventId) {
-        return requestRepository.getAllRequestsByEventIdByUserId(eventId, userId);
+//        UserEntity user = userService.findUserById(userId);
+//        EventsEntity events = eventsService.getEventsById(eventId);
+//        if (events.getInitiator().equals(user)) {
+            return requestRepository.getAllRequestsByEventIdByUserId(eventId, userId);
+//        } else {
+//            return Collections.emptyList();
+//        }
     }
 
     @Override

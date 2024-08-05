@@ -5,8 +5,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.ewmmainservice.categories.dto.AddCategoriesResponseDto;
 import ru.yandex.practicum.ewmmainservice.constants.ServiceConstants;
-import ru.yandex.practicum.ewmmainservice.mapper.CategoriesMapper;
 import ru.yandex.practicum.ewmmainservice.categories.service.CategoriesService;
+import ru.yandex.practicum.ewmmainservice.mapper.CategoriesMapper;
 import ru.yandex.practicum.statsserviceclient.client.StatsClient;
 import ru.yandex.practicum.statsservicedto.HitDtoRequest;
 

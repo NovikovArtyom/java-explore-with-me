@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.List;
 
 public interface RequestService {
-    List<RequestView> getAllRequestsByUserId(Long userId);
+    List<RequestEntity> getAllRequestsByUserId(Long userId);
 
     RequestEntity addRequest(Long userId, Long eventId);
 

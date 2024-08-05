@@ -1,6 +1,7 @@
 package ru.yandex.practicum.ewmmainservice.user.controller;
 
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +33,7 @@ public class UserAdminController {
     public ResponseEntity<List<UserResponseDto>> findAllUsers(
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
             @PositiveOrZero @RequestParam(required = false, defaultValue = "10") Integer size,
-            @RequestParam List<Long> usersIds
+            @RequestParam(name = "ids", required = false) List<Long> usersIds
     ) {
         Page<UserEntity> response = userService.findAllUsers(from, size,usersIds);
         if (!response.isEmpty()) {
@@ -44,13 +45,14 @@ public class UserAdminController {
 
     @PostMapping
     public ResponseEntity<UserResponseDto> addUser(@Valid @RequestBody AddUserRequestDto addUserRequestDto) {
-        return ResponseEntity.ok(usersMapper.fromUserEntityToUserResponseDto(userService.addUser(
+        return ResponseEntity.status(HttpStatus.CREATED).body(usersMapper.fromUserEntityToUserResponseDto(userService.addUser(
                 usersMapper.fromAddUserRequestDtoToUserEntity(addUserRequestDto)
         )));
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUser(@PositiveOrZero @PathVariable Long userId) {
+    public ResponseEntity<?> deleteUser(@PositiveOrZero @PathVariable Long userId) {
         userService.deleteUser(userId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
