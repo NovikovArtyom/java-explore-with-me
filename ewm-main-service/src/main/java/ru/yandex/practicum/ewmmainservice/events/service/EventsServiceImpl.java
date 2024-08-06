@@ -12,10 +12,7 @@ import ru.yandex.practicum.ewmmainservice.events.model.EventStateAction;
 import ru.yandex.practicum.ewmmainservice.events.model.EventsEntity;
 import ru.yandex.practicum.ewmmainservice.events.model.EventsStates;
 import ru.yandex.practicum.ewmmainservice.events.repository.EventsRepository;
-import ru.yandex.practicum.ewmmainservice.exception.EventNotFoundException;
-import ru.yandex.practicum.ewmmainservice.exception.IncorrectEventDateException;
-import ru.yandex.practicum.ewmmainservice.exception.IncorrectEventStateException;
-import ru.yandex.practicum.ewmmainservice.exception.UserNotFoundException;
+import ru.yandex.practicum.ewmmainservice.exception.*;
 import ru.yandex.practicum.ewmmainservice.location.model.LocationEntity;
 import ru.yandex.practicum.ewmmainservice.location.repository.LocationRepository;
 import ru.yandex.practicum.ewmmainservice.user.model.UserEntity;
@@ -43,24 +40,37 @@ public class EventsServiceImpl implements EventsService {
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public EventsEntity addEvent(Long userId, EventsEntity eventsEntity, Long categoryId) {
-        if (!userService.findAllUsers(0, 1, List.of(userId)).isEmpty()) {
-            if (!eventsEntity.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
-                LocationEntity location = locationRepository.save(eventsEntity.getLocation());
-                eventsEntity.setLocation(location);
-                eventsEntity.setConfirmedRequests(0);
-                eventsEntity.setCreatedOn(LocalDateTime.now());
-                eventsEntity.setInitiator(userService.findAllUsers(0, 1, List.of(userId)).getContent().get(0));
-                eventsEntity.setPublishedOn(LocalDateTime.now());
-                eventsEntity.setStates(EventsStates.AWAITING_MODERATION);
-                eventsEntity.setViews(0);
-                eventsEntity.setCategories(categoriesService.findCategoriesById(categoryId));
-                return eventsRepository.save(eventsEntity);
+        if (eventsEntity.getEventDate().isAfter(LocalDateTime.now())) {
+            if (!userService.findAllUsers(0, 1, List.of(userId)).isEmpty()) {
+                if (!eventsEntity.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
+                    LocationEntity location = locationRepository.save(eventsEntity.getLocation());
+                    eventsEntity.setLocation(location);
+                    eventsEntity.setConfirmedRequests(0);
+                    eventsEntity.setCreatedOn(LocalDateTime.now());
+                    eventsEntity.setInitiator(userService.findAllUsers(0, 1, List.of(userId)).getContent().get(0));
+                    eventsEntity.setPublishedOn(LocalDateTime.now());
+                    eventsEntity.setStates(EventsStates.PENDING);
+                    eventsEntity.setViews(0);
+                    eventsEntity.setCategories(categoriesService.findCategoriesById(categoryId));
+                    if (eventsEntity.getPaid() == null) {
+                        eventsEntity.setPaid(false);
+                    }
+                    if (eventsEntity.getParticipantLimit() == null) {
+                        eventsEntity.setParticipantLimit(0);
+                    }
+                    if (eventsEntity.getRequestModeration() == null) {
+                        eventsEntity.setRequestModeration(true);
+                    }
+                    return eventsRepository.save(eventsEntity);
+                } else {
+                    throw new IncorrectEventDateException("eventDate", "должно содержать дату, которая еще не наступила",
+                            eventsEntity.getEventDate());
+                }
             } else {
-                throw new IncorrectEventDateException("eventDate", "должно содержать дату, которая еще не наступила",
-                        eventsEntity.getEventDate());
+                throw new UserNotFoundException(userId);
             }
         } else {
-            throw new UserNotFoundException(userId);
+            throw new DateTimeValidationException();
         }
     }
 
@@ -89,22 +99,38 @@ public class EventsServiceImpl implements EventsService {
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public EventsEntity patchEvent(Long userId, Long eventId, PatchEventRequestDto patchEventRequestDto) {
-        if (eventsRepository.existsByIdAndInitiator_Id(eventId, userId)) {
-            LocalDateTime eventDateTime = LocalDateTime.parse(patchEventRequestDto.getEventDate(), formatter);
-            if (!eventDateTime.isBefore(LocalDateTime.now().plusHours(2))) {
+        LocalDateTime patchedDateTime = patchEventRequestDto.getEventDate() != null
+                ? LocalDateTime.parse(patchEventRequestDto.getEventDate(), formatter) : null;
+        if (patchedDateTime == null || patchedDateTime.isAfter(LocalDateTime.now())) {
+            if (eventsRepository.existsByIdAndInitiator_Id(eventId, userId)) {
                 EventsEntity event = eventsRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
-                if (event.getStates().equals(EventsStates.AWAITING_MODERATION) || event.getStates().equals(EventsStates.REJECTED)) {
+                if (!event.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
                     EventsEntity updatedEvent = patchingEvent(event, patchEventRequestDto);
+                    if (event.getStates().equals(EventsStates.PENDING)) {
+                        if (patchEventRequestDto.getStateAction() != null
+                                && patchEventRequestDto.getStateAction().equals(EventStateAction.CANCEL_REVIEW)) {
+                            updatedEvent.setStates(EventsStates.CANCELED);
+                        } else if (patchEventRequestDto.getStateAction() != null
+                                && patchEventRequestDto.getStateAction().equals(EventStateAction.PUBLISH_EVENT)) {
+                            updatedEvent.setStates(EventsStates.PUBLISHED);
+                        }
+                    } else if (event.getStates().equals(EventsStates.CANCELED)) {
+                        if (patchEventRequestDto.getStateAction().equals(EventStateAction.SEND_TO_REVIEW)) {
+                            updatedEvent.setStates(EventsStates.PENDING);
+                        }
+                    } else {
+                        throw new IncorrectEventStateException();
+                    }
                     return eventsRepository.save(updatedEvent);
                 } else {
-                    throw new IncorrectEventStateException();
+                    throw new IncorrectEventDateException("eventDate", "должно содержать дату, которая еще не наступила",
+                            event.getEventDate());
                 }
             } else {
-                throw new IncorrectEventDateException("eventDate", "должно содержать дату, которая еще не наступила",
-                        eventDateTime);
+                throw new EventNotFoundException(eventId);
             }
         } else {
-            throw new EventNotFoundException(eventId);
+            throw new DateTimeValidationException();
         }
     }
 
@@ -114,31 +140,46 @@ public class EventsServiceImpl implements EventsService {
             List<Long> users, List<EventsStates> states, List<Long> categories, String rangeStart, String rangeEnd,
             Integer from, Integer size
     ) {
-        return eventsRepository.getAllEvents(users, states, categories, LocalDateTime.parse(rangeStart, formatter),
-                LocalDateTime.parse(rangeEnd, formatter), PageRequest.of(from, size));
+        LocalDateTime start = rangeStart == null ? null : LocalDateTime.parse(rangeStart, formatter);
+        LocalDateTime end = rangeEnd == null ? null : LocalDateTime.parse(rangeEnd, formatter);
+        if (start == null || end == null) {
+            return eventsRepository.getAllEventsWithoutDate(users, states, categories, PageRequest.of(from, size));
+        } else {
+            return eventsRepository.getAllEvents(users, states, categories, start,
+                    end, PageRequest.of(from, size));
+        }
     }
 
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public EventsEntity patchEventStatus(Long eventId, PatchEventRequestDto patchEventRequestDto) {
-        EventsEntity event = eventsRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
-        if (!event.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
-            if (patchEventRequestDto.getStateAction().equals(EventStateAction.PUBLISH_EVENT) &&
-                    (event.getStates().equals(EventsStates.AWAITING_MODERATION))) {
-                EventsEntity updatedEvent = patchingEvent(event, patchEventRequestDto);
-                updatedEvent.setStates(EventsStates.PUBLISHED);
-                return eventsRepository.save(updatedEvent);
-            } else if (patchEventRequestDto.getStateAction().equals(EventStateAction.CANCEL_REVIEW) &&
-                    (!event.getStates().equals(EventsStates.PUBLISHED))) {
-                EventsEntity updatedEvent = patchingEvent(event, patchEventRequestDto);
-                updatedEvent.setStates(EventsStates.REJECTED);
-                return eventsRepository.save(updatedEvent);
+        LocalDateTime patchedDateTime = patchEventRequestDto.getEventDate() != null
+                ? LocalDateTime.parse(patchEventRequestDto.getEventDate(), formatter) : null;
+        if (patchedDateTime == null || patchedDateTime.isAfter(LocalDateTime.now())) {
+            EventsEntity event = eventsRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
+            if (!event.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
+                if (patchEventRequestDto.getStateAction() != null) {
+                    if (patchEventRequestDto.getStateAction().equals(EventStateAction.PUBLISH_EVENT) &&
+                            (event.getStates().equals(EventsStates.PENDING))) {
+                        EventsEntity updatedEvent = patchingEvent(event, patchEventRequestDto);
+                        updatedEvent.setStates(EventsStates.PUBLISHED);
+                        event = eventsRepository.save(updatedEvent);
+                    } else if (patchEventRequestDto.getStateAction().equals(EventStateAction.REJECT_EVENT) &&
+                            event.getStates().equals(EventsStates.PENDING)) {
+                        EventsEntity updatedEvent = patchingEvent(event, patchEventRequestDto);
+                        updatedEvent.setStates(EventsStates.CANCELED);
+                        event = eventsRepository.save(updatedEvent);
+                    } else {
+                        throw new DataIntegrityViolationException("Некорректные параметры изменения статуса!");
+                    }
+                }
+                return event;
             } else {
-                throw new IncorrectEventStateException();
+                throw new IncorrectEventDateException("createdOn", "должно содержать дату, которая еще не наступила",
+                        event.getCreatedOn());
             }
         } else {
-            throw new IncorrectEventDateException("createdOn", "должно содержать дату, которая еще не наступила",
-                    event.getCreatedOn());
+            throw new DateTimeValidationException();
         }
     }
 
@@ -148,6 +189,12 @@ public class EventsServiceImpl implements EventsService {
             String text, List<Long> categories, Boolean paid, String rangeStart, String rangeEnd, Boolean onlyAvailable,
             String sort, Integer from, Integer size
     ) {
+        try {
+            categories.forEach(categoriesService::findCategoriesById);
+        } catch (CategoriesNotFoundException e) {
+            throw new CategoriesValidationException();
+        }
+
         LocalDateTime start = rangeStart != null ? LocalDateTime.parse(rangeStart, formatter) : null;
         LocalDateTime end = rangeEnd != null ? LocalDateTime.parse(rangeEnd, formatter) : null;
         String formattedText = "%" + text.toLowerCase() + "%";
@@ -164,11 +211,24 @@ public class EventsServiceImpl implements EventsService {
     @Override
     @Transactional(readOnly = true)
     public EventsEntity getEventsById(Long id) {
-        if (eventsRepository.existsById(id)) {
-            return eventsRepository.findByIdAndStates(id, EventsStates.PUBLISHED);
+        EventsEntity event = eventsRepository.findByIdAndStates(id, EventsStates.PUBLISHED);
+        if (event != null) {
+            Integer views = event.getViews();
+            event.setViews(views + 1);
+            return eventsRepository.save(event);
         } else {
             throw new EventNotFoundException(id);
         }
+    }
+
+    @Override
+    public EventsEntity findEventById(Long id) {
+        return eventsRepository.findById(id).orElseThrow(() -> new EventNotFoundException(id));
+    }
+
+    @Override
+    public Boolean existByCategoryId(Long catId) {
+        return eventsRepository.existsByCategories_Id(catId);
     }
 
     private EventsEntity patchingEvent(EventsEntity eventsEntity, PatchEventRequestDto patchEventRequestDto) {

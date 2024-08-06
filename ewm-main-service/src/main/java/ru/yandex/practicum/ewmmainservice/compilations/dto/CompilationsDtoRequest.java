@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 @Getter
@@ -15,9 +16,9 @@ import java.util.List;
 @NoArgsConstructor
 public class CompilationsDtoRequest {
     private List<Long> events;
-    @NotNull
     private Boolean pinned;
     @NotNull
     @NotBlank
+    @Size(max = 50)
     private String title;
 }

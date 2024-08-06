@@ -43,9 +43,7 @@ public class CategoriesAdminController {
     public ResponseEntity<AddCategoriesResponseDto> patchCategories(@Valid @RequestBody CategoriesRequestDto categoriesRequestDto,
                                                                     @PositiveOrZero @PathVariable Long catId) {
         return ResponseEntity.ok(categoriesMapper.fromCategoriesEntityToAddCategoriesResponseDto(
-                categoriesService.patchCategories(
-                        categoriesMapper.fromAddCategoriesRequestDtoToCategoriesEntity(categoriesRequestDto), catId
-                )
+                categoriesService.patchCategories(categoriesRequestDto, catId)
         ));
     }
 }

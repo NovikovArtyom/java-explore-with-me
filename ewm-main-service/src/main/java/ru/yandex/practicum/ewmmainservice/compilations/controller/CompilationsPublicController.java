@@ -27,11 +27,12 @@ import static ru.yandex.practicum.ewmmainservice.constants.ServiceConstants.form
 public class CompilationsPublicController {
     private final CompilationsService compilationService;
     private final CompilationsMapper compilationsMapper;
-    private StatsClient statsClient;
+    private final StatsClient statsClient;
 
-    public CompilationsPublicController(CompilationsService compilationService, CompilationsMapper compilationsMapper) {
+    public CompilationsPublicController(CompilationsService compilationService, CompilationsMapper compilationsMapper, StatsClient statsClient) {
         this.compilationService = compilationService;
         this.compilationsMapper = compilationsMapper;
+        this.statsClient = statsClient;
     }
 
     @GetMapping

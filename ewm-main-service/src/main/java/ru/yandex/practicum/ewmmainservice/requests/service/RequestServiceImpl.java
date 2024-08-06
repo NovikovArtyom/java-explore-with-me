@@ -5,11 +5,11 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.ewmmainservice.events.model.EventsEntity;
 import ru.yandex.practicum.ewmmainservice.events.model.EventsStates;
+import ru.yandex.practicum.ewmmainservice.events.repository.EventsRepository;
 import ru.yandex.practicum.ewmmainservice.events.service.EventsService;
-import ru.yandex.practicum.ewmmainservice.exception.EventNotFoundException;
-import ru.yandex.practicum.ewmmainservice.exception.RequestException;
-import ru.yandex.practicum.ewmmainservice.exception.RequestNotFoundException;
+import ru.yandex.practicum.ewmmainservice.exception.*;
 import ru.yandex.practicum.ewmmainservice.mapper.RequestMapper;
+import ru.yandex.practicum.ewmmainservice.requests.dto.RequestsDtoResponse;
 import ru.yandex.practicum.ewmmainservice.requests.dto.RequestsDtoUpdate;
 import ru.yandex.practicum.ewmmainservice.requests.dto.RequestsDtoUpdateStatus;
 import ru.yandex.practicum.ewmmainservice.requests.model.RequestEntity;
@@ -19,6 +19,7 @@ import ru.yandex.practicum.ewmmainservice.user.model.UserEntity;
 import ru.yandex.practicum.ewmmainservice.user.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,12 +28,14 @@ public class RequestServiceImpl implements RequestService {
     private final UserService userService;
     private final EventsService eventsService;
     private final RequestMapper requestMapper;
+    private final EventsRepository eventsRepository;
 
-    public RequestServiceImpl(RequestRepository requestRepository, UserService userService, EventsService eventsService, RequestMapper requestMapper) {
+    public RequestServiceImpl(RequestRepository requestRepository, UserService userService, EventsService eventsService, RequestMapper requestMapper, EventsRepository eventsRepository) {
         this.requestRepository = requestRepository;
         this.userService = userService;
         this.eventsService = eventsService;
         this.requestMapper = requestMapper;
+        this.eventsRepository = eventsRepository;
     }
 
     @Override
@@ -45,35 +48,48 @@ public class RequestServiceImpl implements RequestService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public RequestEntity addRequest(Long userId, Long eventId) {
         UserEntity user = userService.findUserById(userId);
-        EventsEntity event = eventsService.getEventsById(eventId);
-        if (!requestRepository.existsByEvent_IdAndRequester_Id(eventId, userId)) {
-            if (!event.getInitiator().equals(user)) {
-                if (event.getStates().equals(EventsStates.PUBLISHED)) {
-                    if (event.getConfirmedRequests() < event.getParticipantLimit()) {
-                        RequestEntity request = new RequestEntity();
-                        request.setCreated(LocalDateTime.now());
-                        request.setRequester(user);
-                        request.setEvent(event);
-                        if (event.getRequestModeration()) {
-                            request.setStatus(RequestStatus.PENDING);
+        EventsEntity event = eventsService.findEventById(eventId);
+        if (event.getStates().equals(EventsStates.PUBLISHED)) {
+            if (!requestRepository.existsByEvent_IdAndRequester_Id(eventId, userId)) {
+                if (!event.getInitiator().equals(user)) {
+                    if (event.getStates().equals(EventsStates.PUBLISHED)) {
+                        if ((event.getParticipantLimit() == 0) || (event.getConfirmedRequests() < event.getParticipantLimit())) {
+                            RequestEntity request = new RequestEntity();
+                            request.setCreated(LocalDateTime.now());
+                            request.setRequester(user);
+                            request.setEvent(event);
+                            if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
+                                if (event.getParticipantLimit() != 0) {
+                                    if (event.getConfirmedRequests() + 1 <= event.getParticipantLimit()) {
+                                        event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+                                        eventsRepository.save(event);
+                                    } else {
+                                        throw new RequestException("The event has reached its limit of participation requests.",
+                                                "The event has reached its limit of participation requests.");
+                                    }
+                                }
+                                request.setStatus(RequestStatus.CONFIRMED);
+                            } else {
+                                request.setStatus(RequestStatus.PENDING);
+                            }
+                            return requestRepository.save(request);
                         } else {
-                            request.setStatus(RequestStatus.CONFIRMED);
+                            throw new RequestException("The event has reached its limit of participation requests.",
+                                    "The event has reached its limit of participation requests.");
                         }
-                        return requestRepository.save(request);
                     } else {
-                        throw new RequestException("The event has reached its limit of participation requests.",
-                                "The event has reached its limit of participation requests.");
+                        throw new RequestException("You can't participate in an unpublished event.",
+                                "You can't participate in an unpublished event.");
                     }
                 } else {
-                    throw new RequestException("You can't participate in an unpublished event.",
-                            "You can't participate in an unpublished event.");
+                    throw new RequestException("An event initiator cannot add a request to their event.",
+                            "An event initiator cannot add a request to their event.");
                 }
             } else {
-                throw new RequestException("An event initiator cannot add a request to their event.",
-                        "An event initiator cannot add a request to their event.");
+                throw new RequestException("You can't add a repeat request.", "You can't add a repeat request.");
             }
         } else {
-            throw new RequestException("You can't add a repeat request.", "You can't add a repeat request.");
+            throw new DataIntegrityViolationException("Попытка добавить заявку к необупликованному событию!");
         }
     }
 
@@ -82,7 +98,7 @@ public class RequestServiceImpl implements RequestService {
     public RequestEntity requestCancel(Long userId, Long requestId) {
         RequestEntity request = requestRepository.findByIdAndRequester_Id(requestId, userId);
         if (request != null) {
-            request.setStatus(RequestStatus.REJECTED);
+            request.setStatus(RequestStatus.CANCELED);
             return requestRepository.save(request);
         } else {
             throw new RequestNotFoundException(requestId);
@@ -92,13 +108,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional(readOnly = true)
     public List<RequestEntity> getAllRequestsByEventIdByUserId(Long userId, Long eventId) {
-//        UserEntity user = userService.findUserById(userId);
-//        EventsEntity events = eventsService.getEventsById(eventId);
-//        if (events.getInitiator().equals(user)) {
-            return requestRepository.getAllRequestsByEventIdByUserId(eventId, userId);
-//        } else {
-//            return Collections.emptyList();
-//        }
+        return requestRepository.getAllRequestsByEventIdByUserId(eventId, userId);
     }
 
     @Override
@@ -106,16 +116,37 @@ public class RequestServiceImpl implements RequestService {
         EventsEntity event = eventsService.getEventsByIdByUserId(userId, eventId);
         if (event != null) {
             RequestsDtoUpdateStatus requestsDtoUpdateStatus = new RequestsDtoUpdateStatus();
+            List<RequestsDtoResponse> confirmedRequests = new ArrayList<>();
+            List<RequestsDtoResponse> rejectedRequests = new ArrayList<>();
             if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
                 return requestsDtoUpdateStatus;
             } else {
                 requestsDtoUpdate.getRequestIds().forEach(item -> {
                     RequestEntity request = requestRepository.findById(item).orElseThrow(() -> new RequestNotFoundException(item));
-                    if (event.getConfirmedRequests() < event.getParticipantLimit()) {
-                        if (request.getStatus() == RequestStatus.PENDING) {
-                            request.setStatus(RequestStatus.CONFIRMED);
-                            requestRepository.save(request);
-                            requestsDtoUpdateStatus.getConfirmedRequests().add(requestMapper.fromRequestEntityToRequestDtoResponse(request));
+                    if (event.getConfirmedRequests() <= event.getParticipantLimit()) {
+                        if (requestsDtoUpdate.getStatus() != null) {
+                            if (request.getStatus() == RequestStatus.PENDING) {
+                                if (requestsDtoUpdate.getStatus().equals(RequestStatus.CONFIRMED)) {
+                                    if (event.getParticipantLimit() != 0 && event.getConfirmedRequests() + 1 <= event.getParticipantLimit()) {
+                                        request.setStatus(RequestStatus.CONFIRMED);
+                                        event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+                                        eventsRepository.save(event);
+                                        requestRepository.save(request);
+                                        confirmedRequests.add(requestMapper.fromRequestEntityToRequestDtoResponse(request));
+                                    } else {
+                                        throw new RequestException("The event has reached its limit of participation requests.",
+                                                "The event has reached its limit of participation requests.");
+                                    }
+                                } else if (requestsDtoUpdate.getStatus().equals(RequestStatus.REJECTED)) {
+                                    request.setStatus(RequestStatus.REJECTED);
+                                    requestRepository.save(request);
+                                    rejectedRequests.add(requestMapper.fromRequestEntityToRequestDtoResponse(request));
+                                } else {
+                                    throw new IncorrectEventStateException();
+                                }
+                            } else {
+                                throw new DataIntegrityViolationException("Попытка обновить!");
+                            }
                         }
                     } else {
                         request.setStatus(RequestStatus.REJECTED);
@@ -125,6 +156,8 @@ public class RequestServiceImpl implements RequestService {
                                 "The participant limit has been reached");
                     }
                 });
+                requestsDtoUpdateStatus.setConfirmedRequests(confirmedRequests);
+                requestsDtoUpdateStatus.setRejectedRequests(rejectedRequests);
                 return requestsDtoUpdateStatus;
             }
         } else {

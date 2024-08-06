@@ -27,5 +27,9 @@ public interface EventsService {
 
     EventsEntity getEventsById(Long id);
 
+    EventsEntity findEventById(Long id);
+
+    Boolean existByCategoryId(Long catId);
+
 }
 

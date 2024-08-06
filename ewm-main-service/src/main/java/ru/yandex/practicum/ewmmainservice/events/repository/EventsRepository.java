@@ -33,6 +33,15 @@ public interface EventsRepository extends JpaRepository<EventsEntity, Long> {
                                     Pageable pageable);
 
     @Query("select ev from EventsEntity as ev where " +
+            "((:users) is null or ev.initiator.id in (:users)) " +
+            "and ((:states) is null or ev.states in (:states)) " +
+            "and ((:categories) is null or ev.categories.id in (:categories))")
+    Page<EventsEntity> getAllEventsWithoutDate(@Param("users") List<Long> users,
+                                    @Param("states") List<EventsStates> states,
+                                    @Param("categories") List<Long> categories,
+                                    Pageable pageable);
+
+    @Query("select ev from EventsEntity as ev where " +
             "ev.id = :id and ev.states = :state")
     EventsEntity findByIdAndStates(@Param("id") Long id,
                                    @Param("state") EventsStates state);
@@ -41,8 +50,7 @@ public interface EventsRepository extends JpaRepository<EventsEntity, Long> {
             "(lower(ev.annotation) like :text or lower(ev.description) like :text) " +
             "and ((:categories) is null or ev.categories.id in (:categories)) " +
             "and (:paid is null or ev.paid=:paid) " +
-            "and ((:rangeStart is null and :rangeEnd is null and ev.eventDate > current_timestamp) " +
-            "or (ev.eventDate between :rangeStart and :rangeEnd)) " +
+            "and (ev.eventDate > current_timestamp) " +
             "and ((:onlyAvailable = false) or (ev.participantLimit > ev.confirmedRequests)) " +
             "and (ev.states='PUBLISHED') " +
             "order by case when :sort='EVENT_DATE' then ev.eventDate end, " +
@@ -71,5 +79,7 @@ public interface EventsRepository extends JpaRepository<EventsEntity, Long> {
                                                        @Param("end") LocalDateTime end,
                                                        @Param("sort") String sort,
                                                        Pageable pageable);
+
+    Boolean existsByCategories_Id(Long catId);
 
 }

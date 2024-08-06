@@ -1,5 +1,6 @@
 package ru.yandex.practicum.ewmmainservice.compilations.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -28,22 +29,25 @@ public class CompilationsAdminController {
     public ResponseEntity<CompilationsDtoResponse> addCompilation(
             @Valid @RequestBody CompilationsDtoRequest compilationsDtoRequest
     ) {
-        return ResponseEntity.ok(
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(
                 compilationsMapper.fromCompilationsEntityToCompilationsDtoResponse(compilationsService.addCompilation(compilationsDtoRequest))
         );
     }
 
     @DeleteMapping("/{compId}")
-    public void deleteCompilation(
+    public ResponseEntity<?> deleteCompilation(
             @Positive @PathVariable Long compId
     ) {
         compilationsService.deleteCompilation(compId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping("/{compId}")
     public ResponseEntity<CompilationsDtoResponse> updateCompilation(
             @Positive @PathVariable Long compId,
-            @RequestBody CompilationsDtoUpdate compilationsDtoUpdate
+            @Valid @RequestBody CompilationsDtoUpdate compilationsDtoUpdate
     ) {
         return ResponseEntity.ok(
                 compilationsMapper.fromCompilationsEntityToCompilationsDtoResponse(compilationsService.updateCompilation(compId, compilationsDtoUpdate))

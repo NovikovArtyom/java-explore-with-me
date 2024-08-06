@@ -6,4 +6,5 @@ import ru.yandex.practicum.ewmmainservice.categories.model.CategoriesEntity;
 
 @Repository
 public interface CategoriesRepository extends JpaRepository<CategoriesEntity, Long> {
+    Boolean existsByName(String name);
 }

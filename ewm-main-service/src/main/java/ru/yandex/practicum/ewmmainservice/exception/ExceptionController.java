@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 public class ExceptionController {
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handle(final CategoriesNotFoundException e) {
@@ -93,6 +94,22 @@ public class ExceptionController {
         log.error(String.format("Подборка с id = %s не зарегистрирована!", compId));
         return new ErrorResponse(HttpStatus.NOT_FOUND.toString(), "The required object was not found.",
                 String.format("Compilation with id=%s was not found", compId), LocalDateTime.now().format(formatter));
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handle(final CategoriesValidationException e) {
+        log.error("Ошибка валидации для списка категорий!");
+        return new ErrorResponse(HttpStatus.BAD_REQUEST.toString(), "Ошибка валидации для списка категорий!",
+                "Ошибка валидации для списка категорий!", LocalDateTime.now().format(formatter));
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handle(final DateTimeValidationException e) {
+        log.error("Ошибка валидации даты или времени!");
+        return new ErrorResponse(HttpStatus.BAD_REQUEST.toString(), "Ошибка валидации даты или времени!",
+                "Ошибка валидации даты или времени!", LocalDateTime.now().format(formatter));
     }
 
 }

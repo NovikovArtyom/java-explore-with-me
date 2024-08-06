@@ -30,11 +30,21 @@ public class CompilationsServiceImpl implements CompilationsService {
     public CompilationsEntity addCompilation(CompilationsDtoRequest compilationsDtoRequest) {
         try {
             CompilationsEntity compilations = new CompilationsEntity();
-            compilations.setPinned(compilationsDtoRequest.getPinned());
+            List<EventsEntity> events = new ArrayList<>();
+            if (compilationsDtoRequest.getPinned() == null) {
+                compilations.setPinned(false);
+            } else {
+                compilations.setPinned(compilationsDtoRequest.getPinned());
+            }
             compilations.setTitle(compilationsDtoRequest.getTitle());
-            compilationsDtoRequest.getEvents().forEach(item -> {
-                compilations.getEvents().add(eventsService.getEventsById(item));
-            });
+            if (compilationsDtoRequest.getEvents() == null) {
+                compilations.setEvents(null);
+            } else {
+                compilationsDtoRequest.getEvents().forEach(item -> {
+                    events.add(eventsService.findEventById(item));
+                });
+            }
+            compilations.setEvents(events);
             return compilationsRepository.save(compilations);
         } catch (DataAccessException e) {
             throw new DataIntegrityViolationException(e.getMessage());

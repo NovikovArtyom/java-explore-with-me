@@ -5,10 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.yandex.practicum.ewmmainservice.events.model.EventsEntity;
-import ru.yandex.practicum.ewmmainservice.user.model.UserEntity;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -16,6 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "compilations")
 public class CompilationsEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

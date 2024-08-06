@@ -1,7 +1,7 @@
 package ru.yandex.practicum.ewmmainservice.events.model;
 
 public enum EventsStates {
-    AWAITING_MODERATION,
+    PENDING,
     PUBLISHED,
-    REJECTED;
+    CANCELED;
 }
