@@ -2,7 +2,6 @@ package ru.yandex.practicum.ewmmainservice.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 import ru.yandex.practicum.ewmmainservice.requests.dto.RequestsDtoResponse;
 import ru.yandex.practicum.ewmmainservice.requests.model.RequestEntity;
 

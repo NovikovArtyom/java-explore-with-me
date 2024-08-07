@@ -209,11 +209,10 @@ public class EventsServiceImpl implements EventsService {
 
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public EventsEntity getEventsById(Long id) {
+    public EventsEntity getEventsById(Long id, Integer views) {
         EventsEntity event = eventsRepository.findByIdAndStates(id, EventsStates.PUBLISHED);
         if (event != null) {
-            Integer views = event.getViews();
-            event.setViews(views + 1);
+            event.setViews(views != null ? views : 0);
             return eventsRepository.save(event);
         } else {
             throw new EventNotFoundException(id);

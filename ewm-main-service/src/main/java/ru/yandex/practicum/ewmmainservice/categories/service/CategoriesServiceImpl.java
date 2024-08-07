@@ -9,7 +9,6 @@ import ru.yandex.practicum.ewmmainservice.categories.dto.CategoriesRequestDto;
 import ru.yandex.practicum.ewmmainservice.categories.model.CategoriesEntity;
 import ru.yandex.practicum.ewmmainservice.categories.repository.CategoriesRepository;
 import ru.yandex.practicum.ewmmainservice.events.repository.EventsRepository;
-import ru.yandex.practicum.ewmmainservice.events.service.EventsService;
 import ru.yandex.practicum.ewmmainservice.exception.CategoriesNotFoundException;
 import ru.yandex.practicum.ewmmainservice.exception.DataIntegrityViolationException;
 

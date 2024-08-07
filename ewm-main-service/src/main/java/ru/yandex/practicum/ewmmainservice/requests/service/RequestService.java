@@ -1,12 +1,9 @@
 package ru.yandex.practicum.ewmmainservice.requests.service;
 
-import org.springframework.data.domain.Page;
 import ru.yandex.practicum.ewmmainservice.requests.dto.RequestsDtoUpdate;
 import ru.yandex.practicum.ewmmainservice.requests.dto.RequestsDtoUpdateStatus;
 import ru.yandex.practicum.ewmmainservice.requests.model.RequestEntity;
-import ru.yandex.practicum.ewmmainservice.requests.views.RequestView;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface RequestService {

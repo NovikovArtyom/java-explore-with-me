@@ -71,7 +71,7 @@ public class CompilationsServiceImpl implements CompilationsService {
         if (compilationsDtoUpdate.getEvents() != null) {
             List<EventsEntity> eventsList = new ArrayList<>();
             compilationsDtoUpdate.getEvents().forEach(item -> {
-                eventsList.add(eventsService.getEventsById(item));
+                eventsList.add(eventsService.findEventById(item));
             });
             compilations.setEvents(eventsList);
         }

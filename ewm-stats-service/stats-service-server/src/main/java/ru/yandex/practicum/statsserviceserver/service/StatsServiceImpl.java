@@ -41,4 +41,13 @@ public class StatsServiceImpl implements StatsService {
             return hitRepository.getStats(start, end, uris);
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long getViews(String uri) {
+        log.info("Запрос попал в метод сервиса - getViews");
+        return hitRepository.getViews(uri);
+    }
+
+
 }

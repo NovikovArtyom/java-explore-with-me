@@ -31,4 +31,11 @@ public interface HitRepository extends JpaRepository<HitEntity, Long> {
     List<StatsView> getUniqueStats(@Param("start") LocalDateTime start,
                                    @Param("end") LocalDateTime end,
                                    @Param("uris") List<String> uris);
+
+    @Query("SELECT count(DISTINCT h.ip) " +
+            "FROM HitEntity AS h " +
+            "WHERE h.uri = :uri " +
+            "GROUP BY h.uri " +
+            "ORDER BY count(DISTINCT h.ip) DESC")
+    Long getViews(@Param("uri") String uri);
 }

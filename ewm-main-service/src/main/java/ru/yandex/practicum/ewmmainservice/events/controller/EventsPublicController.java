@@ -13,6 +13,7 @@ import ru.yandex.practicum.statsservicedto.HitDtoRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -62,11 +63,20 @@ public class EventsPublicController {
     public ResponseEntity<EventResponseDto> getEventsById(
             @Positive @PathVariable Long id,
             HttpServletRequest request
-    ) {
-        statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRemoteAddr(), request.getRequestURI(),
+    ) throws UnsupportedEncodingException {
+        String requestURI = request.getRequestURI();
+        System.out.println("requestURI" + requestURI);
+        statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRemoteAddr(), requestURI,
                 URLEncoder.encode(LocalDateTime.now().format(formatter), StandardCharsets.UTF_8)));
+        ResponseEntity<Object> response = statsClient.getViews(requestURI);
+        Integer views = null;
+        if (response.getBody() instanceof Integer) {
+            views = (Integer) response.getBody();
+        } else if (response.getBody() instanceof Long) {
+            views = ((Long) response.getBody()).intValue();
+        }
         return ResponseEntity.ok(
-                eventsMapper.fromEventsEntityToEventResponseDto(eventsService.getEventsById(id))
+                eventsMapper.fromEventsEntityToEventResponseDto(eventsService.getEventsById(id, views))
         );
     }
 }

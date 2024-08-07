@@ -25,7 +25,7 @@ public interface EventsService {
                                                   String rangeEnd, Boolean onlyAvailable, String sort, Integer from,
                                                   Integer size);
 
-    EventsEntity getEventsById(Long id);
+    EventsEntity getEventsById(Long id, Integer views);
 
     EventsEntity findEventById(Long id);
 

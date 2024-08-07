@@ -48,4 +48,11 @@ public class StatsClient extends BaseClient {
         );
         return get(ApiPrefix.GET_STATS_PREFIX, param);
     }
+
+    public ResponseEntity<Object> getViews(String uri) throws UnsupportedEncodingException {
+        Map<String, Object> param = Map.of(
+                "uri", uri
+        );
+        return get(ApiPrefix.GET_VIEWS_PREFIX, param);
+    }
 }

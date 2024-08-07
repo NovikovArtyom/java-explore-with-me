@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.ewmmainservice.requests.model.RequestEntity;
-import ru.yandex.practicum.ewmmainservice.requests.views.RequestView;
 
 import java.util.List;
 
