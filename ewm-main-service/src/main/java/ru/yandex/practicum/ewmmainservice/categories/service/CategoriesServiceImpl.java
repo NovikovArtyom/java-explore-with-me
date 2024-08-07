@@ -60,14 +60,12 @@ public class CategoriesServiceImpl implements CategoriesService {
         }
     }
 
-    //TODO: Запрос составлен некорректно - обработка исключения
     @Override
     @Transactional(readOnly = true)
     public Page<CategoriesEntity> findAllCategories(Integer from, Integer size) {
         return categoriesRepository.findAll(PageRequest.of(from, size));
     }
 
-    //TODO: Запрос составлен некорректно - обработка исключения
     @Override
     @Transactional(readOnly = true)
     public CategoriesEntity findCategoriesById(Long catId) {

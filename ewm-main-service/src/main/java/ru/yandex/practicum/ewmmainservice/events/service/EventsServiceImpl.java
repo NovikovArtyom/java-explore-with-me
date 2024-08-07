@@ -77,7 +77,6 @@ public class EventsServiceImpl implements EventsService {
     @Override
     @Transactional(readOnly = true)
     public Page<EventsEntity> getAllEventsByUserId(Long userId, Integer from, Integer size) {
-//        if (!userService.findAllUsers(from, size, List.of(userId)).isEmpty()) {
         UserEntity user = userService.findUserById(userId);
         if (user != null) {
             return eventsRepository.findAllByInitiator_Id(userId, PageRequest.of(from, size));
@@ -209,7 +208,7 @@ public class EventsServiceImpl implements EventsService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public EventsEntity getEventsById(Long id) {
         EventsEntity event = eventsRepository.findByIdAndStates(id, EventsStates.PUBLISHED);
         if (event != null) {
@@ -222,11 +221,13 @@ public class EventsServiceImpl implements EventsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventsEntity findEventById(Long id) {
         return eventsRepository.findById(id).orElseThrow(() -> new EventNotFoundException(id));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Boolean existByCategoryId(Long catId) {
         return eventsRepository.existsByCategories_Id(catId);
     }

@@ -21,7 +21,6 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
     }
 
-    //TODO: Запрос составлен некорректно
     @Override
     @Transactional(readOnly = true)
     public Page<UserEntity> findAllUsers(Integer from, Integer size, List<Long> usersIds) {

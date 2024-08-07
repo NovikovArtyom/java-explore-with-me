@@ -112,6 +112,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public RequestsDtoUpdateStatus updateRequestsStatus(Long userId, Long eventId, RequestsDtoUpdate requestsDtoUpdate) {
         EventsEntity event = eventsService.getEventsByIdByUserId(userId, eventId);
         if (event != null) {
