@@ -19,6 +19,7 @@ import ru.yandex.practicum.ewmmainservice.user.model.UserEntity;
 import ru.yandex.practicum.ewmmainservice.user.service.UserService;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class RequestServiceImpl implements RequestService {
                     if (event.getStates().equals(EventsStates.PUBLISHED)) {
                         if ((event.getParticipantLimit() == 0) || (event.getConfirmedRequests() < event.getParticipantLimit())) {
                             RequestEntity request = new RequestEntity();
-                            request.setCreated(LocalDateTime.now());
+                            request.setCreated(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
                             request.setRequester(user);
                             request.setEvent(event);
                             if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {

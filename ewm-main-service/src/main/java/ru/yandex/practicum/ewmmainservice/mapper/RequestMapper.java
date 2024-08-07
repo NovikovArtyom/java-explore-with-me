@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 
 @Mapper(componentModel = "spring")
 public interface RequestMapper {
-    DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Mapping(source = "event.id", target = "event")
     @Mapping(source = "requester.id", target = "requester")
