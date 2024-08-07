@@ -66,7 +66,7 @@ public class EventsPublicController {
     ) throws UnsupportedEncodingException {
         String requestURI = request.getRequestURI();
         System.out.println("requestURI" + requestURI);
-        statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRemoteAddr(), requestURI,
+        statsClient.addHit(new HitDtoRequest(ServiceConstants.server,requestURI, request.getRemoteAddr(),
                 URLEncoder.encode(LocalDateTime.now().format(formatter), StandardCharsets.UTF_8)));
         ResponseEntity<Object> response = statsClient.getViews(requestURI);
         Integer views = null;

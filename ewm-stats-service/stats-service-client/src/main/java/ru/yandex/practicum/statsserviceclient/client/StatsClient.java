@@ -53,6 +53,6 @@ public class StatsClient extends BaseClient {
         Map<String, Object> param = Map.of(
                 "uri", uri
         );
-        return get(ApiPrefix.GET_VIEWS_PREFIX, param);
+        return get(ApiPrefix.GET_VIEWS_PREFIX + "?uri={uri}", param);
     }
 }

@@ -24,7 +24,7 @@ public class StatsMapper {
                 hitDtoRequest.getApp(),
                 hitDtoRequest.getUri(),
                 hitDtoRequest.getIp(),
-                LocalDateTime.parse(hitDtoRequest.getTimestamp(), formatter)
+                asLocalDateTime(hitDtoRequest.getTimestamp())
         );
     }
 
