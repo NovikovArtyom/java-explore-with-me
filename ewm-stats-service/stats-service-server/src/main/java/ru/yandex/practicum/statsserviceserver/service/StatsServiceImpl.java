@@ -10,6 +10,7 @@ import ru.yandex.practicum.statsserviceserver.model.view.StatsView;
 import ru.yandex.practicum.statsserviceserver.repository.HitRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,10 +36,13 @@ public class StatsServiceImpl implements StatsService {
         if (start.isAfter(end)) {
             throw new IncorrectDateException("Дата начала интервала поиска не может быть позднее даты окончания интервала поиска");
         }
+        List<StatsView> stats = new ArrayList<>();
         if (unique) {
-            return hitRepository.getUniqueStats(start, end, uris);
+            stats = hitRepository.getUniqueStats(start, end, uris);
+            return stats;
         } else {
-            return hitRepository.getStats(start, end, uris);
+            stats = hitRepository.getStats(start, end, uris);
+            return stats;
         }
     }
 

@@ -49,7 +49,7 @@ public class EventsPublicController {
             @PositiveOrZero @RequestParam(required = false, defaultValue = "10") Integer size,
             HttpServletRequest request
     ) {
-        statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRemoteAddr(), request.getRequestURI(),
+        statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRequestURI(), request.getRemoteAddr(),
                 URLEncoder.encode(LocalDateTime.now().format(formatter), StandardCharsets.UTF_8)));
         return ResponseEntity.ok(
                 eventsService.getAllEventsWithFiltration(text, categories, paid, rangeStart, rangeEnd, onlyAvailable,
@@ -65,8 +65,7 @@ public class EventsPublicController {
             HttpServletRequest request
     ) throws UnsupportedEncodingException {
         String requestURI = request.getRequestURI();
-        System.out.println("requestURI" + requestURI);
-        statsClient.addHit(new HitDtoRequest(ServiceConstants.server,requestURI, request.getRemoteAddr(),
+        statsClient.addHit(new HitDtoRequest(ServiceConstants.server, requestURI, request.getRemoteAddr(),
                 URLEncoder.encode(LocalDateTime.now().format(formatter), StandardCharsets.UTF_8)));
         ResponseEntity<Object> response = statsClient.getViews(requestURI);
         Integer views = null;
