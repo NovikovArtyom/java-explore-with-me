@@ -39,7 +39,7 @@ public class CategoriesPublicController {
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
             @PositiveOrZero @RequestParam(required = false, defaultValue = "10") Integer size,
             HttpServletRequest request) {
-        statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRemoteAddr(), request.getRequestURI(),
+        statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRequestURI(), request.getRemoteAddr(),
                 URLEncoder.encode(LocalDateTime.now().format(formatter), StandardCharsets.UTF_8)));
         return ResponseEntity.ok(categoriesService.findAllCategories(from, size).stream()
                 .map(categoriesMapper::fromCategoriesEntityToAddCategoriesResponseDto)
@@ -51,7 +51,7 @@ public class CategoriesPublicController {
             @PositiveOrZero @PathVariable Long catId,
             HttpServletRequest request
     ) {
-        statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRemoteAddr(), request.getRequestURI(),
+        statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRequestURI(), request.getRemoteAddr(),
                 URLEncoder.encode(LocalDateTime.now().format(formatter), StandardCharsets.UTF_8)));
         return ResponseEntity.ok(categoriesMapper.fromCategoriesEntityToAddCategoriesResponseDto(
                 categoriesService.findCategoriesById(catId)

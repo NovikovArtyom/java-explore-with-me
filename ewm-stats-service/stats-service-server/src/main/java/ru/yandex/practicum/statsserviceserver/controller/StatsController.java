@@ -1,6 +1,7 @@
 package ru.yandex.practicum.statsserviceserver.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,9 @@ public class StatsController {
     @PostMapping("/hit")
     public ResponseEntity<HitDtoResponse> addHit(@Valid @RequestBody HitDtoRequest hitDtoRequest) {
         log.info("Запрос попал в метод контроллера - addHit");
-        return ResponseEntity.ok(StatsMapper.hitEntityToHitDtoResponse(statsService.addHit(StatsMapper.hitDtoRequestToHitEntity(hitDtoRequest))));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(StatsMapper.hitEntityToHitDtoResponse(statsService.addHit(StatsMapper.hitDtoRequestToHitEntity(hitDtoRequest))));
     }
 
     @GetMapping("/stats")

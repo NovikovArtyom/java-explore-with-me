@@ -42,7 +42,7 @@ public class CompilationsPublicController {
             @PositiveOrZero @RequestParam(required = false, defaultValue = "10") Integer size,
             HttpServletRequest request
     ) {
-        statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRemoteAddr(), request.getRequestURI(),
+        statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRequestURI(), request.getRemoteAddr(),
                 URLEncoder.encode(LocalDateTime.now().format(formatter), StandardCharsets.UTF_8)));
         return ResponseEntity.ok(
                 compilationService.getAllCompilations(pinned, from, size).stream()
@@ -56,7 +56,7 @@ public class CompilationsPublicController {
             @Positive @PathVariable Long compId,
             HttpServletRequest request
     ) {
-        statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRemoteAddr(), request.getRequestURI(),
+        statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRequestURI(), request.getRemoteAddr(),
                 URLEncoder.encode(LocalDateTime.now().format(formatter), StandardCharsets.UTF_8)));
         return ResponseEntity.ok(
                 compilationsMapper.fromCompilationsEntityToCompilationsDtoResponse(compilationService.getCompilationById(compId))

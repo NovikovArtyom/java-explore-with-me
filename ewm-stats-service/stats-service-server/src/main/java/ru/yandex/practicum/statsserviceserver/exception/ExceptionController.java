@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class ExceptionController {
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handle(final IncorrectDateException e) {
         log.error("Дата начала интервала поиска не может быть позднее даты окончания интервала поиска");
         return new ErrorResponse("error: ", "Дата начала интервала поиска не может быть позднее даты окончания интервала поиска");

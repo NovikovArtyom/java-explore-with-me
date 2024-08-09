@@ -187,12 +187,13 @@ public class EventsServiceImpl implements EventsService {
             String text, List<Long> categories, Boolean paid, String rangeStart, String rangeEnd, Boolean onlyAvailable,
             String sort, Integer from, Integer size
     ) {
-        try {
-            categories.forEach(categoriesService::findCategoriesById);
-        } catch (CategoriesNotFoundException e) {
-            throw new CategoriesValidationException();
+        if (categories != null) {
+            try {
+                categories.forEach(categoriesService::findCategoriesById);
+            } catch (CategoriesNotFoundException e) {
+                throw new CategoriesValidationException();
+            }
         }
-
         LocalDateTime start = rangeStart != null ? LocalDateTime.parse(rangeStart, formatter) : null;
         LocalDateTime end = rangeEnd != null ? LocalDateTime.parse(rangeEnd, formatter) : null;
         String formattedText = "%" + text.toLowerCase() + "%";
@@ -203,7 +204,6 @@ public class EventsServiceImpl implements EventsService {
             return eventsRepository.getAllEventsWithSortWithDate(formattedText, categories, paid,
                     onlyAvailable, start, end, sort, PageRequest.of(from, size));
         }
-
     }
 
     @Override
