@@ -1,7 +1,6 @@
 package ru.yandex.practicum.ewmmainservice.requests.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.ewmmainservice.events.model.EventsEntity;
 import ru.yandex.practicum.ewmmainservice.events.model.EventsStates;
@@ -45,7 +44,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional
     public RequestEntity addRequest(Long userId, Long eventId) {
         UserEntity user = userService.findUserById(userId);
         EventsEntity event = eventsService.findEventById(eventId);
@@ -94,7 +93,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional
     public RequestEntity requestCancel(Long userId, Long requestId) {
         RequestEntity request = requestRepository.findByIdAndRequester_Id(requestId, userId);
         if (request != null) {
@@ -112,7 +111,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional
     public RequestsDtoUpdateStatus updateRequestsStatus(Long userId, Long eventId, RequestsDtoUpdate requestsDtoUpdate) {
         EventsEntity event = eventsService.getEventsByIdByUserId(userId, eventId);
         if (event != null) {

@@ -3,7 +3,6 @@ package ru.yandex.practicum.ewmmainservice.categories.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.ewmmainservice.categories.dto.CategoriesRequestDto;
 import ru.yandex.practicum.ewmmainservice.categories.model.CategoriesEntity;
@@ -23,7 +22,7 @@ public class CategoriesServiceImpl implements CategoriesService {
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional
     public CategoriesEntity addCategories(CategoriesEntity categoriesEntity) {
         if (!categoriesRepository.existsByName(categoriesEntity.getName())) {
             return categoriesRepository.save(categoriesEntity);
@@ -34,7 +33,7 @@ public class CategoriesServiceImpl implements CategoriesService {
 
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional
     public void deleteCategories(Long catId) {
         CategoriesEntity categories = categoriesRepository.findById(catId).orElseThrow(() ->
                 new CategoriesNotFoundException(catId));
@@ -46,7 +45,7 @@ public class CategoriesServiceImpl implements CategoriesService {
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional
     public CategoriesEntity patchCategories(CategoriesRequestDto categoriesRequestDto, Long catId) {
         CategoriesEntity categories = categoriesRepository.findById(catId).orElseThrow(() ->
                 new CategoriesNotFoundException(catId));

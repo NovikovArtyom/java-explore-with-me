@@ -4,7 +4,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.ewmmainservice.compilations.dto.CompilationsDtoRequest;
 import ru.yandex.practicum.ewmmainservice.compilations.dto.CompilationsDtoUpdate;
@@ -29,7 +28,7 @@ public class CompilationsServiceImpl implements CompilationsService {
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional
     public CompilationsEntity addCompilation(CompilationsDtoRequest compilationsDtoRequest) {
         try {
             CompilationsEntity compilations = new CompilationsEntity();
@@ -55,7 +54,7 @@ public class CompilationsServiceImpl implements CompilationsService {
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional
     public void deleteCompilation(Long compId) {
         if (compilationsRepository.existsById(compId)) {
             compilationsRepository.deleteById(compId);
@@ -65,7 +64,7 @@ public class CompilationsServiceImpl implements CompilationsService {
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional
     public CompilationsEntity updateCompilation(Long compId, CompilationsDtoUpdate compilationsDtoUpdate) {
         CompilationsEntity compilations = compilationsRepository.findById(compId).orElseThrow(() -> new CompilationNotFoundException(compId));
         if (compilationsDtoUpdate.getEvents() != null) {

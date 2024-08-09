@@ -3,7 +3,6 @@ package ru.yandex.practicum.ewmmainservice.events.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.ewmmainservice.categories.model.CategoriesEntity;
 import ru.yandex.practicum.ewmmainservice.categories.service.CategoriesService;
@@ -28,7 +27,7 @@ public class EventsServiceImpl implements EventsService {
     private final LocationRepository locationRepository;
     private final UserService userService;
     private final CategoriesService categoriesService;
-    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public EventsServiceImpl(EventsRepository eventsRepository, LocationRepository locationRepository, UserService userService, CategoriesService categoriesService) {
         this.eventsRepository = eventsRepository;
@@ -38,7 +37,7 @@ public class EventsServiceImpl implements EventsService {
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional
     public EventsEntity addEvent(Long userId, EventsEntity eventsEntity, Long categoryId) {
         if (eventsEntity.getEventDate().isAfter(LocalDateTime.now())) {
             if (!userService.findAllUsers(0, 1, List.of(userId)).isEmpty()) {
@@ -96,7 +95,7 @@ public class EventsServiceImpl implements EventsService {
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional
     public EventsEntity patchEvent(Long userId, Long eventId, PatchEventRequestDto patchEventRequestDto) {
         LocalDateTime patchedDateTime = patchEventRequestDto.getEventDate() != null
                 ? LocalDateTime.parse(patchEventRequestDto.getEventDate(), formatter) : null;
@@ -150,7 +149,7 @@ public class EventsServiceImpl implements EventsService {
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional
     public EventsEntity patchEventStatus(Long eventId, PatchEventRequestDto patchEventRequestDto) {
         LocalDateTime patchedDateTime = patchEventRequestDto.getEventDate() != null
                 ? LocalDateTime.parse(patchEventRequestDto.getEventDate(), formatter) : null;
@@ -208,7 +207,7 @@ public class EventsServiceImpl implements EventsService {
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional
     public EventsEntity getEventsById(Long id, Integer views) {
         EventsEntity event = eventsRepository.findByIdAndStates(id, EventsStates.PUBLISHED);
         if (event != null) {
