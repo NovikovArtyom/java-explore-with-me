@@ -1,5 +1,6 @@
 package ru.yandex.practicum.ewmmainservice.compilations.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -16,6 +17,7 @@ import javax.validation.constraints.Positive;
 @RestController
 @RequestMapping("/admin/compilations")
 @Validated
+@Slf4j
 public class CompilationsAdminController {
     private final CompilationsService compilationsService;
     private final CompilationsMapper compilationsMapper;
@@ -29,6 +31,7 @@ public class CompilationsAdminController {
     public ResponseEntity<CompilationsDtoResponse> addCompilation(
             @Valid @RequestBody CompilationsDtoRequest compilationsDtoRequest
     ) {
+        log.info("Compilations. Admin Controller: 'addCompilation' method called");
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
@@ -40,6 +43,7 @@ public class CompilationsAdminController {
     public ResponseEntity<?> deleteCompilation(
             @Positive @PathVariable Long compId
     ) {
+        log.info("Compilations. Admin Controller: 'deleteCompilation' method called");
         compilationsService.deleteCompilation(compId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -49,6 +53,7 @@ public class CompilationsAdminController {
             @Positive @PathVariable Long compId,
             @Valid @RequestBody CompilationsDtoUpdate compilationsDtoUpdate
     ) {
+        log.info("Compilations. Admin Controller: 'updateCompilation' method called");
         return ResponseEntity.ok(
                 compilationsMapper.fromCompilationsEntityToCompilationsDtoResponse(compilationsService.updateCompilation(compId, compilationsDtoUpdate))
         );

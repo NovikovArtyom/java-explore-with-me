@@ -1,5 +1,6 @@
 package ru.yandex.practicum.ewmmainservice.events.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ import static ru.yandex.practicum.ewmmainservice.constants.ServiceConstants.form
 @RestController
 @RequestMapping("/events")
 @Validated
+@Slf4j
 public class EventsPublicController {
     private final EventsService eventsService;
     private final EventsMapper eventsMapper;
@@ -49,6 +51,7 @@ public class EventsPublicController {
             @PositiveOrZero @RequestParam(required = false, defaultValue = "10") Integer size,
             HttpServletRequest request
     ) {
+        log.info("Events. Public Controller: 'getAllEventsWithFiltration' method called");
         statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRequestURI(), request.getRemoteAddr(),
                 URLEncoder.encode(LocalDateTime.now().format(formatter), StandardCharsets.UTF_8)));
         return ResponseEntity.ok(
@@ -64,10 +67,10 @@ public class EventsPublicController {
             @Positive @PathVariable Long id,
             HttpServletRequest request
     ) throws UnsupportedEncodingException {
-        String requestURI = request.getRequestURI();
-        statsClient.addHit(new HitDtoRequest(ServiceConstants.server, requestURI, request.getRemoteAddr(),
+        log.info("Events. Public Controller: 'getEventsById' method called");
+        statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRequestURI(), request.getRemoteAddr(),
                 URLEncoder.encode(LocalDateTime.now().format(formatter), StandardCharsets.UTF_8)));
-        ResponseEntity<Object> response = statsClient.getViews(requestURI);
+        ResponseEntity<Object> response = statsClient.getViews(request.getRequestURI());
         Integer views = null;
         if (response.getBody() instanceof Integer) {
             views = (Integer) response.getBody();

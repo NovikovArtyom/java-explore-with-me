@@ -1,5 +1,6 @@
 package ru.yandex.practicum.ewmmainservice.user.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/admin/users")
 @Validated
+@Slf4j
 public class UserAdminController {
     private final UserService userService;
     private final UsersMapper usersMapper;
@@ -35,6 +37,7 @@ public class UserAdminController {
             @PositiveOrZero @RequestParam(required = false, defaultValue = "10") Integer size,
             @RequestParam(name = "ids", required = false) List<Long> usersIds
     ) {
+        log.info("User. Admin Controller: 'findAllUsers' method called");
         Page<UserEntity> response = userService.findAllUsers(from, size,usersIds);
         if (!response.isEmpty()) {
             return ResponseEntity.ok(response.stream().map(usersMapper::fromUserEntityToUserResponseDto).collect(Collectors.toList()));
@@ -45,6 +48,7 @@ public class UserAdminController {
 
     @PostMapping
     public ResponseEntity<UserResponseDto> addUser(@Valid @RequestBody AddUserRequestDto addUserRequestDto) {
+        log.info("User. Admin Controller: 'addUser' method called");
         return ResponseEntity.status(HttpStatus.CREATED).body(usersMapper.fromUserEntityToUserResponseDto(userService.addUser(
                 usersMapper.fromAddUserRequestDtoToUserEntity(addUserRequestDto)
         )));
@@ -52,6 +56,7 @@ public class UserAdminController {
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<?> deleteUser(@PositiveOrZero @PathVariable Long userId) {
+        log.info("User. Admin Controller: 'deleteUser' method called");
         userService.deleteUser(userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

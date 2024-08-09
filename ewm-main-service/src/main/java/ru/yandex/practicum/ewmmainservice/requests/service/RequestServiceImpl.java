@@ -1,5 +1,6 @@
 package ru.yandex.practicum.ewmmainservice.requests.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.ewmmainservice.events.model.EventsEntity;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
     private final UserService userService;
@@ -41,15 +43,17 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional(readOnly = true)
     public List<RequestEntity> getAllRequestsByUserId(Long userId) {
+        log.info("Requests. Service: 'getAllRequestsByUserId' method called");
         return requestRepository.findAllByUserId(userId);
     }
 
     @Override
     @Transactional
     public RequestEntity addRequest(Long userId, Long eventId) {
+        log.info("Requests. Service: 'addRequest' method called");
         UserEntity user = userService.findUserById(userId);
         EventsEntity event = eventsService.findEventById(eventId);
-        if (event.getStates().equals(EventsStates.PUBLISHED)) {
+//        if (event.getStates().equals(EventsStates.PUBLISHED)) {
             if (!requestRepository.existsByEvent_IdAndRequester_Id(eventId, userId)) {
                 if (!event.getInitiator().equals(user)) {
                     if (event.getStates().equals(EventsStates.PUBLISHED)) {
@@ -88,14 +92,15 @@ public class RequestServiceImpl implements RequestService {
             } else {
                 throw new RequestException("You can't add a repeat request.", "You can't add a repeat request.");
             }
-        } else {
-            throw new DataIntegrityViolationException("Попытка добавить заявку к необупликованному событию!");
-        }
+//        } else {
+//            throw new DataIntegrityViolationException("Попытка добавить заявку к необупликованному событию!");
+//        }
     }
 
     @Override
     @Transactional
     public RequestEntity requestCancel(Long userId, Long requestId) {
+        log.info("Requests. Service: 'requestCancel' method called");
         RequestEntity request = requestRepository.findByIdAndRequester_Id(requestId, userId);
         if (request != null) {
             request.setStatus(RequestStatus.CANCELED);
@@ -108,61 +113,67 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional(readOnly = true)
     public List<RequestEntity> getAllRequestsByEventIdByUserId(Long userId, Long eventId) {
+        log.info("Requests. Service: 'getAllRequestsByEventIdByUserId' method called");
         return requestRepository.getAllRequestsByEventIdByUserId(eventId, userId);
     }
 
     @Override
     @Transactional
     public RequestsDtoUpdateStatus updateRequestsStatus(Long userId, Long eventId, RequestsDtoUpdate requestsDtoUpdate) {
+        log.info("Requests. Service: 'updateRequestsStatus' method called");
         EventsEntity event = eventsService.getEventsByIdByUserId(userId, eventId);
         if (event != null) {
-            RequestsDtoUpdateStatus requestsDtoUpdateStatus = new RequestsDtoUpdateStatus();
+            RequestsDtoUpdateStatus updateStatus = new RequestsDtoUpdateStatus();
+            if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
+                return updateStatus;
+            }
+
             List<RequestsDtoResponse> confirmedRequests = new ArrayList<>();
             List<RequestsDtoResponse> rejectedRequests = new ArrayList<>();
-            if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
-                return requestsDtoUpdateStatus;
-            } else {
-                requestsDtoUpdate.getRequestIds().forEach(item -> {
-                    RequestEntity request = requestRepository.findById(item).orElseThrow(() -> new RequestNotFoundException(item));
-                    if (event.getConfirmedRequests() <= event.getParticipantLimit()) {
-                        if (requestsDtoUpdate.getStatus() != null) {
-                            if (request.getStatus() == RequestStatus.PENDING) {
-                                if (requestsDtoUpdate.getStatus().equals(RequestStatus.CONFIRMED)) {
-                                    if (event.getParticipantLimit() != 0 && event.getConfirmedRequests() + 1 <= event.getParticipantLimit()) {
-                                        request.setStatus(RequestStatus.CONFIRMED);
-                                        event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-                                        eventsRepository.save(event);
-                                        requestRepository.save(request);
-                                        confirmedRequests.add(requestMapper.fromRequestEntityToRequestDtoResponse(request));
-                                    } else {
-                                        throw new RequestException("The event has reached its limit of participation requests.",
-                                                "The event has reached its limit of participation requests.");
-                                    }
-                                } else if (requestsDtoUpdate.getStatus().equals(RequestStatus.REJECTED)) {
-                                    request.setStatus(RequestStatus.REJECTED);
-                                    requestRepository.save(request);
-                                    rejectedRequests.add(requestMapper.fromRequestEntityToRequestDtoResponse(request));
-                                } else {
-                                    throw new IncorrectEventStateException();
-                                }
-                            } else {
-                                throw new DataIntegrityViolationException("Попытка обновить!");
-                            }
-                        }
-                    } else {
-                        request.setStatus(RequestStatus.REJECTED);
-                        requestRepository.save(request);
-                        requestsDtoUpdateStatus.getRejectedRequests().add(requestMapper.fromRequestEntityToRequestDtoResponse(request));
-                        throw new RequestException("For the requested operation the conditions are not met.",
-                                "The participant limit has been reached");
-                    }
-                });
-                requestsDtoUpdateStatus.setConfirmedRequests(confirmedRequests);
-                requestsDtoUpdateStatus.setRejectedRequests(rejectedRequests);
-                return requestsDtoUpdateStatus;
+
+            for (Long requestId : requestsDtoUpdate.getRequestIds()) {
+                RequestEntity request = requestRepository.findById(requestId)
+                        .orElseThrow(() -> new RequestNotFoundException(requestId));
+
+                if (request.getStatus() != RequestStatus.PENDING) {
+                    throw new DataIntegrityViolationException("Попытка обновить событие с окончательным статусом!");
+                }
+
+                if (RequestStatus.CONFIRMED.equals(requestsDtoUpdate.getStatus())) {
+                    handleConfirmedRequest(event, request, confirmedRequests);
+                } else if (RequestStatus.REJECTED.equals(requestsDtoUpdate.getStatus())) {
+                    handleRejectedRequest(request, rejectedRequests);
+                } else {
+                    throw new IncorrectEventStateException();
+                }
             }
+
+            updateStatus.setConfirmedRequests(confirmedRequests);
+            updateStatus.setRejectedRequests(rejectedRequests);
+            return updateStatus;
         } else {
             throw new EventNotFoundException(eventId);
         }
+    }
+
+    private void handleConfirmedRequest(EventsEntity event, RequestEntity request, List<RequestsDtoResponse> confirmedRequests) {
+        if (event.getConfirmedRequests() >= event.getParticipantLimit()) {
+            throw new RequestException("The event has reached its limit of participation requests.",
+                    "The participant limit has been reached");
+        }
+
+        request.setStatus(RequestStatus.CONFIRMED);
+        event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+
+        requestRepository.save(request);
+        eventsRepository.save(event);
+
+        confirmedRequests.add(requestMapper.fromRequestEntityToRequestDtoResponse(request));
+    }
+
+    private void handleRejectedRequest(RequestEntity request, List<RequestsDtoResponse> rejectedRequests) {
+        request.setStatus(RequestStatus.REJECTED);
+        requestRepository.save(request);
+        rejectedRequests.add(requestMapper.fromRequestEntityToRequestDtoResponse(request));
     }
 }

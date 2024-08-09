@@ -1,5 +1,6 @@
 package ru.yandex.practicum.ewmmainservice.events.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/users/{userId}/events")
 @Validated
+@Slf4j
 public class EventsPrivateController {
     private final EventsService eventsService;
     private final EventsMapper eventsMapper;
@@ -43,6 +45,7 @@ public class EventsPrivateController {
             @Positive @PathVariable Long userId,
             @Valid @RequestBody AddEventRequestDto addEventRequestDto
     ) {
+        log.info("Events. Private Controller: 'addEvent' method called");
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(eventsMapper.fromEventsEntityToEventResponseDto(eventsService.addEvent(userId,
@@ -57,6 +60,7 @@ public class EventsPrivateController {
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
             @PositiveOrZero @RequestParam(required = false, defaultValue = "10") Integer size
     ) {
+        log.info("Events. Private Controller: 'getAllEventsByUserId' method called");
         return ResponseEntity.ok(eventsService.getAllEventsByUserId(userId, from, size).stream()
                 .map(eventsMapper::fromEventsEntityToEventResponseDto)
                 .collect(Collectors.toList()));
@@ -67,6 +71,7 @@ public class EventsPrivateController {
             @Positive @PathVariable Long userId,
             @Positive @PathVariable Long eventId
     ) {
+        log.info("Events. Private Controller: 'getEventsByIdByUserId' method called");
         return ResponseEntity.ok(eventsMapper.fromEventsEntityToEventResponseDto(
                 eventsService.getEventsByIdByUserId(userId, eventId)
         ));
@@ -78,6 +83,7 @@ public class EventsPrivateController {
             @Positive @PathVariable Long eventId,
             @Valid @RequestBody PatchEventRequestDto patchEventRequestDto
     ) {
+        log.info("Events. Private Controller: 'patchEvent' method called");
         return ResponseEntity.ok(eventsMapper.fromEventsEntityToEventResponseDto(
                 eventsService.patchEvent(userId, eventId, patchEventRequestDto)
         ));
@@ -88,6 +94,7 @@ public class EventsPrivateController {
             @Positive @PathVariable Long userId,
             @Positive @PathVariable Long eventId
     ) {
+        log.info("Events. Private Controller: 'getAllRequestsByEventIdByUserId' method called");
         return ResponseEntity.ok(
                 requestService.getAllRequestsByEventIdByUserId(userId, eventId).stream()
                         .map(requestMapper::fromRequestEntityToRequestDtoResponse)
@@ -101,6 +108,7 @@ public class EventsPrivateController {
             @Positive @PathVariable Long eventId,
             @Valid @RequestBody RequestsDtoUpdate requestsDtoUpdate
     ) {
+        log.info("Events. Private Controller: 'updateRequestsStatus' method called");
         return ResponseEntity.ok(
                 requestService.updateRequestsStatus(userId, eventId, requestsDtoUpdate)
         );

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.ewmmainservice.user.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,6 +14,7 @@ import ru.yandex.practicum.ewmmainservice.user.repository.UserRepository;
 import java.util.List;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
@@ -23,6 +25,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public Page<UserEntity> findAllUsers(Integer from, Integer size, List<Long> usersIds) {
+        log.info("User. Service: 'findAllUsers' method called");
         if (usersIds == null) {
             return userRepository.findAll(PageRequest.of(from, size));
         } else {
@@ -33,6 +36,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserEntity addUser(UserEntity userEntity) {
+        log.info("User. Service: 'addUser' method called");
         try {
             return userRepository.save(userEntity);
         } catch (DataAccessException e) {
@@ -43,6 +47,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteUser(Long userId) {
+        log.info("User. Service: 'deleteUser' method called");
         if (userRepository.existsById(userId)) {
             userRepository.deleteById(userId);
         } else {
@@ -53,6 +58,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public UserEntity findUserById(Long userId) {
+        log.info("User. Service: 'findUserById' method called");
         return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
     }
 }

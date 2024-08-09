@@ -1,6 +1,8 @@
 package ru.yandex.practicum.ewmmainservice.events.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.ewmmainservice.events.dto.EventResponseDto;
 import ru.yandex.practicum.ewmmainservice.events.dto.PatchEventRequestDto;
@@ -16,6 +18,8 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/admin/events")
+@Validated
+@Slf4j
 public class EventsAdminController {
     private final EventsService eventsService;
     private final EventsMapper eventsMapper;
@@ -35,6 +39,7 @@ public class EventsAdminController {
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
             @PositiveOrZero @RequestParam(required = false, defaultValue = "10") Integer size
     ) {
+        log.info("Events. Admin Controller: 'getAllEvents' method called");
         return ResponseEntity.ok(
                 eventsService.getAllEvents(users, states, categories, rangeStart, rangeEnd, from, size).stream()
                         .map(eventsMapper::fromEventsEntityToEventResponseDto)
@@ -47,6 +52,7 @@ public class EventsAdminController {
             @Positive @PathVariable Long eventId,
             @Valid @RequestBody PatchEventRequestDto patchEventRequestDto
     ) {
+        log.info("Events. Admin Controller: 'patchEventStatus' method called");
         return ResponseEntity.ok(
                 eventsMapper.fromEventsEntityToEventResponseDto(eventsService.patchEventStatus(eventId, patchEventRequestDto))
         );

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.ewmmainservice.events.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
+@Slf4j
 public class EventsServiceImpl implements EventsService {
     private final EventsRepository eventsRepository;
     private final LocationRepository locationRepository;
@@ -39,6 +41,7 @@ public class EventsServiceImpl implements EventsService {
     @Override
     @Transactional
     public EventsEntity addEvent(Long userId, EventsEntity eventsEntity, Long categoryId) {
+        log.info("Events. Service: 'addEvent' method called");
         if (eventsEntity.getEventDate().isAfter(LocalDateTime.now())) {
             if (!userService.findAllUsers(0, 1, List.of(userId)).isEmpty()) {
                 if (!eventsEntity.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
@@ -76,6 +79,7 @@ public class EventsServiceImpl implements EventsService {
     @Override
     @Transactional(readOnly = true)
     public Page<EventsEntity> getAllEventsByUserId(Long userId, Integer from, Integer size) {
+        log.info("Events. Service: 'getAllEventsByUserId' method called");
         UserEntity user = userService.findUserById(userId);
         if (user != null) {
             return eventsRepository.findAllByInitiator_Id(userId, PageRequest.of(from, size));
@@ -87,6 +91,7 @@ public class EventsServiceImpl implements EventsService {
     @Override
     @Transactional(readOnly = true)
     public EventsEntity getEventsByIdByUserId(Long userId, Long eventId) {
+        log.info("Events. Service: 'getEventsByIdByUserId' method called");
         if (eventsRepository.existsByIdAndInitiator_Id(eventId, userId)) {
             return eventsRepository.findByIdAndInitiator_Id(eventId, userId);
         } else {
@@ -97,6 +102,7 @@ public class EventsServiceImpl implements EventsService {
     @Override
     @Transactional
     public EventsEntity patchEvent(Long userId, Long eventId, PatchEventRequestDto patchEventRequestDto) {
+        log.info("Events. Service: 'patchEvent' method called");
         LocalDateTime patchedDateTime = patchEventRequestDto.getEventDate() != null
                 ? LocalDateTime.parse(patchEventRequestDto.getEventDate(), formatter) : null;
         if (patchedDateTime == null || patchedDateTime.isAfter(LocalDateTime.now())) {
@@ -138,6 +144,7 @@ public class EventsServiceImpl implements EventsService {
             List<Long> users, List<EventsStates> states, List<Long> categories, String rangeStart, String rangeEnd,
             Integer from, Integer size
     ) {
+        log.info("Events. Service: 'getAllEvents' method called");
         LocalDateTime start = rangeStart == null ? null : LocalDateTime.parse(rangeStart, formatter);
         LocalDateTime end = rangeEnd == null ? null : LocalDateTime.parse(rangeEnd, formatter);
         if (start == null || end == null) {
@@ -151,6 +158,7 @@ public class EventsServiceImpl implements EventsService {
     @Override
     @Transactional
     public EventsEntity patchEventStatus(Long eventId, PatchEventRequestDto patchEventRequestDto) {
+        log.info("Events. Service: 'patchEventStatus' method called");
         LocalDateTime patchedDateTime = patchEventRequestDto.getEventDate() != null
                 ? LocalDateTime.parse(patchEventRequestDto.getEventDate(), formatter) : null;
         if (patchedDateTime == null || patchedDateTime.isAfter(LocalDateTime.now())) {
@@ -187,6 +195,7 @@ public class EventsServiceImpl implements EventsService {
             String text, List<Long> categories, Boolean paid, String rangeStart, String rangeEnd, Boolean onlyAvailable,
             String sort, Integer from, Integer size
     ) {
+        log.info("Events. Service: 'getAllEventsWithFiltration' method called");
         if (categories != null) {
             try {
                 categories.forEach(categoriesService::findCategoriesById);
@@ -209,6 +218,7 @@ public class EventsServiceImpl implements EventsService {
     @Override
     @Transactional
     public EventsEntity getEventsById(Long id, Integer views) {
+        log.info("Events. Service: 'getEventsById' method called");
         EventsEntity event = eventsRepository.findByIdAndStates(id, EventsStates.PUBLISHED);
         if (event != null) {
             event.setViews(views != null ? views : 0);
@@ -221,12 +231,14 @@ public class EventsServiceImpl implements EventsService {
     @Override
     @Transactional(readOnly = true)
     public EventsEntity findEventById(Long id) {
+        log.info("Events. Service: 'findEventById' method called");
         return eventsRepository.findById(id).orElseThrow(() -> new EventNotFoundException(id));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Boolean existByCategoryId(Long catId) {
+        log.info("Events. Service: 'existByCategoryId' method called");
         return eventsRepository.existsByCategories_Id(catId);
     }
 

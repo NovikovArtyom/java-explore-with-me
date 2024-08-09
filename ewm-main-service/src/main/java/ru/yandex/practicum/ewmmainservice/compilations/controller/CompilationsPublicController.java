@@ -1,5 +1,6 @@
 package ru.yandex.practicum.ewmmainservice.compilations.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,7 @@ import static ru.yandex.practicum.ewmmainservice.constants.ServiceConstants.form
 @RestController
 @RequestMapping("/compilations")
 @Validated
+@Slf4j
 public class CompilationsPublicController {
     private final CompilationsService compilationService;
     private final CompilationsMapper compilationsMapper;
@@ -42,6 +44,7 @@ public class CompilationsPublicController {
             @PositiveOrZero @RequestParam(required = false, defaultValue = "10") Integer size,
             HttpServletRequest request
     ) {
+        log.info("Compilations. Public Controller: 'getAllCompilations' method called");
         statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRequestURI(), request.getRemoteAddr(),
                 URLEncoder.encode(LocalDateTime.now().format(formatter), StandardCharsets.UTF_8)));
         return ResponseEntity.ok(
@@ -56,6 +59,7 @@ public class CompilationsPublicController {
             @Positive @PathVariable Long compId,
             HttpServletRequest request
     ) {
+        log.info("Compilations. Public Controller: 'getCompilationById' method called");
         statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRequestURI(), request.getRemoteAddr(),
                 URLEncoder.encode(LocalDateTime.now().format(formatter), StandardCharsets.UTF_8)));
         return ResponseEntity.ok(

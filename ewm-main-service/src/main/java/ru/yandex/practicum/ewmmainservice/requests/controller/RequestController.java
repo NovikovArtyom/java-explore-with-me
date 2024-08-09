@@ -1,5 +1,6 @@
 package ru.yandex.practicum.ewmmainservice.requests.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/users/{userId}/requests")
 @Validated
+@Slf4j
 public class RequestController {
     private final RequestService requestService;
     private final RequestMapper requestMapper;
@@ -28,6 +30,7 @@ public class RequestController {
     public ResponseEntity<List<RequestsDtoResponse>> getAllRequestsByUserId(
             @Positive @PathVariable Long userId
     ) {
+        log.info("Requests. Controller: 'getAllRequestsByUserId' method called");
         return ResponseEntity.ok(
                 requestService.getAllRequestsByUserId(userId).stream()
                         .map(requestMapper::fromRequestViewToRequestDtoResponse)
@@ -40,6 +43,7 @@ public class RequestController {
             @Positive @PathVariable Long userId,
             @RequestParam Long eventId
     ) {
+        log.info("Requests. Controller: 'addRequest' method called");
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
@@ -52,6 +56,7 @@ public class RequestController {
             @Positive @PathVariable Long userId,
             @Positive @PathVariable Long requestId
     ) {
+        log.info("Requests. Controller: 'requestCancel' method called");
         return ResponseEntity.ok(
                 requestMapper.fromRequestEntityToRequestDtoResponse(requestService.requestCancel(userId, requestId))
         );

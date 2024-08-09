@@ -29,7 +29,7 @@ public class StatsController {
 
     @PostMapping("/hit")
     public ResponseEntity<HitDtoResponse> addHit(@Valid @RequestBody HitDtoRequest hitDtoRequest) {
-        log.info("Запрос попал в метод контроллера - addHit");
+        log.info("Stats-service. Controller: 'addHit' method called");
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(StatsMapper.hitEntityToHitDtoResponse(statsService.addHit(StatsMapper.hitDtoRequestToHitEntity(hitDtoRequest))));
@@ -40,7 +40,7 @@ public class StatsController {
                                                            @RequestParam String end,
                                                            @RequestParam(required = false) String[] uris,
                                                            @RequestParam(required = false, defaultValue = "false") Boolean unique) {
-        log.info("Запрос попал в метод контроллера - getStats");
+        log.info("Stats-service. Controller: 'getStats' method called");
         List<String> urisList = uris != null ? Arrays.asList(uris) : null;
         return ResponseEntity.ok(statsService.getStats(StatsMapper.asLocalDateTime(start), StatsMapper.asLocalDateTime(end),
                         urisList, unique).stream()
@@ -50,7 +50,7 @@ public class StatsController {
 
     @GetMapping("/views")
     public ResponseEntity<Long> getViews(@RequestParam(name = "uri") String uri) {
-        log.info("Запрос попал в метод контроллера - getViews");
+        log.info("Stats-service. Controller: 'getViews' method called");
         return ResponseEntity.ok(statsService.getViews(uri));
     }
 }

@@ -24,14 +24,14 @@ public class StatsServiceImpl implements StatsService {
     @Override
     @Transactional
     public HitEntity addHit(HitEntity hitEntity) {
-        log.info("Запрос попал в метод сервиса - addHit");
+        log.info("Stats-service. Service: 'addHit' method called");
         return hitRepository.save(hitEntity);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<StatsView> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        log.info("Запрос попал в метод сервиса - getStats");
+        log.info("Stats-service. Service: 'getStats' method called");
         if (start.isAfter(end)) {
             throw new IncorrectDateException("Дата начала интервала поиска не может быть позднее даты окончания интервала поиска");
         }
@@ -48,7 +48,7 @@ public class StatsServiceImpl implements StatsService {
     @Override
     @Transactional(readOnly = true)
     public Long getViews(String uri) {
-        log.info("Запрос попал в метод сервиса stats-service-server - getViews");
+        log.info("Stats-service. Service: 'getViews' method called");
         return hitRepository.getViews(uri);
     }
 
