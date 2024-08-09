@@ -10,4 +10,6 @@ public interface StatsService {
     HitEntity addHit(HitEntity hitEntity);
 
     List<StatsView> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique);
+
+    Long getViews(String uri);
 }
