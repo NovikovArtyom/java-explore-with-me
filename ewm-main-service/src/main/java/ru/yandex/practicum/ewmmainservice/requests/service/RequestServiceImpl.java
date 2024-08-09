@@ -53,48 +53,44 @@ public class RequestServiceImpl implements RequestService {
         log.info("Requests. Service: 'addRequest' method called");
         UserEntity user = userService.findUserById(userId);
         EventsEntity event = eventsService.findEventById(eventId);
-//        if (event.getStates().equals(EventsStates.PUBLISHED)) {
-            if (!requestRepository.existsByEvent_IdAndRequester_Id(eventId, userId)) {
-                if (!event.getInitiator().equals(user)) {
-                    if (event.getStates().equals(EventsStates.PUBLISHED)) {
-                        if ((event.getParticipantLimit() == 0) || (event.getConfirmedRequests() < event.getParticipantLimit())) {
-                            RequestEntity request = new RequestEntity();
-                            request.setCreated(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
-                            request.setRequester(user);
-                            request.setEvent(event);
-                            if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
-                                if (event.getParticipantLimit() != 0) {
-                                    if (event.getConfirmedRequests() + 1 <= event.getParticipantLimit()) {
-                                        event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-                                        eventsRepository.save(event);
-                                    } else {
-                                        throw new RequestException("The event has reached its limit of participation requests.",
-                                                "The event has reached its limit of participation requests.");
-                                    }
+        if (!requestRepository.existsByEvent_IdAndRequester_Id(eventId, userId)) {
+            if (!event.getInitiator().equals(user)) {
+                if (event.getStates().equals(EventsStates.PUBLISHED)) {
+                    if ((event.getParticipantLimit() == 0) || (event.getConfirmedRequests() < event.getParticipantLimit())) {
+                        RequestEntity request = new RequestEntity();
+                        request.setCreated(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+                        request.setRequester(user);
+                        request.setEvent(event);
+                        if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
+                            if (event.getParticipantLimit() != 0) {
+                                if (event.getConfirmedRequests() + 1 <= event.getParticipantLimit()) {
+                                    event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+                                    eventsRepository.save(event);
+                                } else {
+                                    throw new RequestException("The event has reached its limit of participation requests.",
+                                            "The event has reached its limit of participation requests.");
                                 }
-                                request.setStatus(RequestStatus.CONFIRMED);
-                            } else {
-                                request.setStatus(RequestStatus.PENDING);
                             }
-                            return requestRepository.save(request);
+                            request.setStatus(RequestStatus.CONFIRMED);
                         } else {
-                            throw new RequestException("The event has reached its limit of participation requests.",
-                                    "The event has reached its limit of participation requests.");
+                            request.setStatus(RequestStatus.PENDING);
                         }
+                        return requestRepository.save(request);
                     } else {
-                        throw new RequestException("You can't participate in an unpublished event.",
-                                "You can't participate in an unpublished event.");
+                        throw new RequestException("The event has reached its limit of participation requests.",
+                                "The event has reached its limit of participation requests.");
                     }
                 } else {
-                    throw new RequestException("An event initiator cannot add a request to their event.",
-                            "An event initiator cannot add a request to their event.");
+                    throw new RequestException("You can't participate in an unpublished event.",
+                            "You can't participate in an unpublished event.");
                 }
             } else {
-                throw new RequestException("You can't add a repeat request.", "You can't add a repeat request.");
+                throw new RequestException("An event initiator cannot add a request to their event.",
+                        "An event initiator cannot add a request to their event.");
             }
-//        } else {
-//            throw new DataIntegrityViolationException("Попытка добавить заявку к необупликованному событию!");
-//        }
+        } else {
+            throw new RequestException("You can't add a repeat request.", "You can't add a repeat request.");
+        }
     }
 
     @Override
