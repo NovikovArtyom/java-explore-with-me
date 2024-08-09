@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/admin/events")
-@Validated
 @Slf4j
 public class EventsAdminController {
     private final EventsService eventsService;
@@ -31,7 +30,7 @@ public class EventsAdminController {
 
     @GetMapping
     public ResponseEntity<List<EventResponseDto>> getAllEvents(
-            @Positive @RequestParam(required = false) List<Long> users,
+            @RequestParam(required = false) List<Long> users,
             @RequestParam(required = false) List<EventsStates> states,
             @RequestParam(required = false) List<Long> categories,
             @RequestParam(required = false) String rangeStart,

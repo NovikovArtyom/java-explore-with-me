@@ -68,9 +68,10 @@ public class EventsPublicController {
             HttpServletRequest request
     ) throws UnsupportedEncodingException {
         log.info("Events. Public Controller: 'getEventsById' method called");
-        statsClient.addHit(new HitDtoRequest(ServiceConstants.server, request.getRequestURI(), request.getRemoteAddr(),
+        String requestURI = request.getRequestURI();
+        statsClient.addHit(new HitDtoRequest(ServiceConstants.server, requestURI, request.getRemoteAddr(),
                 URLEncoder.encode(LocalDateTime.now().format(formatter), StandardCharsets.UTF_8)));
-        ResponseEntity<Object> response = statsClient.getViews(request.getRequestURI());
+        ResponseEntity<Object> response = statsClient.getViews(requestURI);
         Integer views = null;
         if (response.getBody() instanceof Integer) {
             views = (Integer) response.getBody();

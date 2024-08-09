@@ -29,7 +29,7 @@ public class EventsServiceImpl implements EventsService {
     private final LocationRepository locationRepository;
     private final UserService userService;
     private final CategoriesService categoriesService;
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public EventsServiceImpl(EventsRepository eventsRepository, LocationRepository locationRepository, UserService userService, CategoriesService categoriesService) {
         this.eventsRepository = eventsRepository;

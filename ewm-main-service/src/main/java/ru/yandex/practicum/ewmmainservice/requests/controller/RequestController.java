@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users/{userId}/requests")
-@Validated
 @Slf4j
 public class RequestController {
     private final RequestService requestService;
