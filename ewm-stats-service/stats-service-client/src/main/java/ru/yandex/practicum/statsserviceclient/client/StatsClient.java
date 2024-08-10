@@ -26,7 +26,7 @@ public class StatsClient extends BaseClient {
         super(
                 builder
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
-                        .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
+                        .requestFactory(HttpComponentsClientHttpRequestFactory::new)
                         .build()
         );
     }
@@ -47,5 +47,12 @@ public class StatsClient extends BaseClient {
                 "unique", unique
         );
         return get(ApiPrefix.GET_STATS_PREFIX, param);
+    }
+
+    public ResponseEntity<Object> getViews(String uri) throws UnsupportedEncodingException {
+        Map<String, Object> param = Map.of(
+                "uri", uri
+        );
+        return get(ApiPrefix.GET_VIEWS_PREFIX + "?uri={uri}", param);
     }
 }
