@@ -1,5 +1,8 @@
 package ru.yandex.practicum.ewmmainservice.events.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +19,6 @@ import ru.yandex.practicum.ewmmainservice.requests.dto.RequestsDtoUpdate;
 import ru.yandex.practicum.ewmmainservice.requests.dto.RequestsDtoUpdateStatus;
 import ru.yandex.practicum.ewmmainservice.requests.service.RequestService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.stream.Collectors;
 

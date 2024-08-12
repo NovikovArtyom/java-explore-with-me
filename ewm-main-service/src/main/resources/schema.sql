@@ -91,7 +91,7 @@ create table if not exists comments
     published timestamp without time zone not null,
     user_id bigint not null,
     event_id bigint not null,
-    CONSTRAINT pk_requests PRIMARY KEY(id),
+    CONSTRAINT pk_comments PRIMARY KEY(id),
     CONSTRAINT fk_comments_users FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_comments_events FOREIGN KEY (event_id) REFERENCES events (id)
 );

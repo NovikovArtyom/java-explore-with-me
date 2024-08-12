@@ -1,5 +1,6 @@
 package ru.yandex.practicum.ewmmainservice.comments.model;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,7 +8,6 @@ import lombok.Setter;
 import ru.yandex.practicum.ewmmainservice.events.model.EventsEntity;
 import ru.yandex.practicum.ewmmainservice.user.model.UserEntity;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class CommentsEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String text;
     private LocalDateTime published;

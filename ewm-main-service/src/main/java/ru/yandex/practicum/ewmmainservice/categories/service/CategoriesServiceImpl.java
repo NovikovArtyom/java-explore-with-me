@@ -41,8 +41,8 @@ public class CategoriesServiceImpl implements CategoriesService {
         log.info("Categories. Service: 'deleteCategories' method called");
         CategoriesEntity categories = categoriesRepository.findById(catId).orElseThrow(() ->
                 new CategoriesNotFoundException(catId));
-        if (!eventsRepository.existsByCategories_Id(catId)) {
-            categoriesRepository.deleteById(catId);
+        if (!eventsRepository.existsByCategories_Id(categories.getId())) {
+            categoriesRepository.deleteById(categories.getId());
         } else {
             throw new DataIntegrityViolationException("С данной категорией есть связанные события!");
         }

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.ewmmainservice.constants;
+package ru.yandex.practicum.ewmmainservice.util;
 
 import lombok.experimental.UtilityClass;
 

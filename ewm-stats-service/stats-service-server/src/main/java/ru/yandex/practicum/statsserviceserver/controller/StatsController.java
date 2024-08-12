@@ -1,5 +1,6 @@
 package ru.yandex.practicum.statsserviceserver.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +12,6 @@ import ru.yandex.practicum.statsservicedto.StatsDtoResponse;
 import ru.yandex.practicum.statsserviceserver.mapper.StatsMapper;
 import ru.yandex.practicum.statsserviceserver.service.StatsService;
 
-import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;

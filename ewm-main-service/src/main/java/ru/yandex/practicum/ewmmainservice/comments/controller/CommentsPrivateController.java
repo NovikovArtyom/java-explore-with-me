@@ -1,5 +1,7 @@
 package ru.yandex.practicum.ewmmainservice.comments.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,8 +12,6 @@ import ru.yandex.practicum.ewmmainservice.comments.dto.CommentsResponseDto;
 import ru.yandex.practicum.ewmmainservice.comments.service.CommentsService;
 import ru.yandex.practicum.ewmmainservice.mapper.CommentsMapper;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Positive;
 
 @RestController
 @RequestMapping("/users/{userId}/comments")
@@ -32,6 +32,7 @@ public class CommentsPrivateController {
             @Positive @PathVariable Long eventId,
             @Valid @RequestBody CommentsRequestDto commentsRequestDto
     ) {
+        log.info("Comments. Private Controller: 'createComment' method called");
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 commentsMapper.fromCommentsEntityToCommentsResponseDto(
                         commentsService.createComment(
@@ -47,6 +48,7 @@ public class CommentsPrivateController {
             @Positive @PathVariable Long commentId,
             @Valid @RequestBody CommentsRequestDto commentsRequestDto
     ) {
+        log.info("Comments. Private Controller: 'updateComment' method called");
         return ResponseEntity.ok(
                 commentsMapper.fromCommentsEntityToCommentsResponseDto(
                         commentsService.updateComment(userId, commentId, commentsRequestDto)
@@ -59,6 +61,7 @@ public class CommentsPrivateController {
             @Positive @PathVariable Long userId,
             @Positive @PathVariable Long commentId
     ) {
+        log.info("Comments. Private Controller: 'deleteCommentByOwner' method called");
         commentsService.deleteCommentByOwner(userId, commentId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

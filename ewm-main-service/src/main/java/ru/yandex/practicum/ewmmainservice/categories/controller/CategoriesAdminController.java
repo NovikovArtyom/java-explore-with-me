@@ -1,5 +1,7 @@
 package ru.yandex.practicum.ewmmainservice.categories.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,8 +12,6 @@ import ru.yandex.practicum.ewmmainservice.categories.dto.CategoriesRequestDto;
 import ru.yandex.practicum.ewmmainservice.categories.service.CategoriesService;
 import ru.yandex.practicum.ewmmainservice.mapper.CategoriesMapper;
 
-import javax.validation.Valid;
-import javax.validation.constraints.PositiveOrZero;
 
 @RestController
 @Validated

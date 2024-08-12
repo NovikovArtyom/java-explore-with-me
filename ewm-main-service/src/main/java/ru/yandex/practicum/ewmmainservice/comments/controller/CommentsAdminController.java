@@ -1,5 +1,7 @@
 package ru.yandex.practicum.ewmmainservice.comments.controller;
 
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,8 +11,6 @@ import ru.yandex.practicum.ewmmainservice.comments.dto.CommentsResponseDto;
 import ru.yandex.practicum.ewmmainservice.comments.service.CommentsService;
 import ru.yandex.practicum.ewmmainservice.mapper.CommentsMapper;
 
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +33,7 @@ public class CommentsAdminController {
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
             @PositiveOrZero @RequestParam(required = false, defaultValue = "10") Integer size
     ) {
+        log.info("Comments. Admin Controller: 'getAllCommentsByUserId' method called");
         return ResponseEntity.ok(
                 commentsService.getAllCommentsByUserId(userId, from, size).stream()
                         .map(commentsMapper::fromCommentsEntityToCommentsResponseDto)
@@ -44,6 +45,7 @@ public class CommentsAdminController {
     public ResponseEntity<?> deleteCommentById(
             @Positive @PathVariable Long commentId
     ) {
+        log.info("Comments. Admin Controller: 'deleteCommentById' method called");
         commentsService.deleteCommentById(commentId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

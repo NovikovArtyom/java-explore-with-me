@@ -1,6 +1,6 @@
 package ru.yandex.practicum.ewmmainservice.comments.service;
 
-import org.apache.catalina.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -20,6 +20,7 @@ import ru.yandex.practicum.ewmmainservice.user.service.UserService;
 import java.time.LocalDateTime;
 
 @Service
+@Slf4j
 public class CommentsServiceImpl implements CommentsService {
     private final CommentsRepository commentsRepository;
     private final UserService userService;
@@ -34,6 +35,7 @@ public class CommentsServiceImpl implements CommentsService {
     @Override
     @Transactional(readOnly = true)
     public Page<CommentsEntity> getAllCommentsByUserId(Long userId, Integer from, Integer size) {
+        log.info("Comments. Service: 'getAllCommentsByUserId' method called");
         UserEntity user = userService.findUserById(userId);
         return commentsRepository.findAllByUser_Id(user.getId(), PageRequest.of(from, size));
     }
@@ -41,6 +43,7 @@ public class CommentsServiceImpl implements CommentsService {
     @Override
     @Transactional
     public void deleteCommentById(Long commentId) {
+        log.info("Comments. Service: 'deleteCommentById' method called");
         if (commentsRepository.existsById(commentId)) {
             commentsRepository.deleteById(commentId);
         } else {
@@ -51,21 +54,28 @@ public class CommentsServiceImpl implements CommentsService {
     @Override
     @Transactional
     public CommentsEntity createComment(Long userId, Long eventId, CommentsEntity commentsEntity) {
+        log.info("Comments. Service: 'createComment' method called");
         UserEntity user = userService.findUserById(userId);
         EventsEntity event = eventsService.findEventById(eventId);
-        if (event.getStates().equals(EventsStates.PUBLISHED)) {
-            commentsEntity.setPublished(LocalDateTime.now());
-            commentsEntity.setUser(user);
-            commentsEntity.setEvent(event);
-            return commentsRepository.save(commentsEntity);
-        } else {
+
+        if (!event.getStates().equals(EventsStates.PUBLISHED)) {
             throw new IncorrectEventStateException();
         }
+
+        if (event.getInitiator().equals(user)) {
+            throw new DataIntegrityViolationException("Автор события не может оставлять комментарии под своими событиями!");
+        }
+
+        commentsEntity.setPublished(LocalDateTime.now());
+        commentsEntity.setUser(user);
+        commentsEntity.setEvent(event);
+        return commentsRepository.save(commentsEntity);
     }
 
     @Override
     @Transactional
     public CommentsEntity updateComment(Long userId, Long commentId, CommentsRequestDto commentsRequestDto) {
+        log.info("Comments. Service: 'updateComment' method called");
         UserEntity user = userService.findUserById(userId);
         CommentsEntity comment = commentsRepository.findById(commentId).orElseThrow(() -> new CommentNotFoundException(commentId));
         if (comment.getUser().equals(user)) {
@@ -79,6 +89,7 @@ public class CommentsServiceImpl implements CommentsService {
     @Override
     @Transactional
     public void deleteCommentByOwner(Long userId, Long commentId) {
+        log.info("Comments. Service: 'deleteCommentByOwner' method called");
         UserEntity user = userService.findUserById(userId);
         CommentsEntity comment = commentsRepository.findById(commentId).orElseThrow(() -> new CommentNotFoundException(commentId));
         if (comment.getUser().equals(user)) {
@@ -91,12 +102,14 @@ public class CommentsServiceImpl implements CommentsService {
     @Override
     @Transactional(readOnly = true)
     public CommentsEntity getCommentById(Long commentId) {
+        log.info("Comments. Service: 'getCommentById' method called");
         return commentsRepository.findById(commentId).orElseThrow(() -> new CommentNotFoundException(commentId));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<CommentsEntity> getAllCommentsByEventId(Long eventId, Integer from, Integer size) {
+        log.info("Comments. Service: 'getAllCommentsByEventId' method called");
         EventsEntity event = eventsService.findEventById(eventId);
         return commentsRepository.findAllByEvent_Id(event.getId(), PageRequest.of(from, size));
     }
