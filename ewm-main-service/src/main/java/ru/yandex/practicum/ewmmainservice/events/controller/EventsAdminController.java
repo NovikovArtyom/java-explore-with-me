@@ -22,6 +22,7 @@ public class EventsAdminController {
     private final EventsService eventsService;
     private final EventsMapper eventsMapper;
 
+
     public EventsAdminController(EventsService eventsService, EventsMapper eventsMapper) {
         this.eventsService = eventsService;
         this.eventsMapper = eventsMapper;
