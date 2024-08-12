@@ -93,6 +93,15 @@
 			"request": {
 				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{request_body}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
 					"raw": "http://localhost:8080/users/{{userid}}/comments/events/{{eventid}}",
 					"protocol": "http",
@@ -500,6 +509,15 @@
 			"request": {
 				"method": "PATCH",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{request_body}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
 					"raw": "http://localhost:8080/users/{{userid}}/comments/{{commentid}}",
 					"protocol": "http",
@@ -662,6 +680,15 @@
 			"request": {
 				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{request_body}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
 					"raw": "http://localhost:8080/users/{{userid}}/comments/events/{{eventid}}",
 					"protocol": "http",
@@ -747,6 +774,15 @@
 			"request": {
 				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{request_body}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
 					"raw": "http://localhost:8080/users/{{userid}}/comments/events/{{eventid}}",
 					"protocol": "http",
@@ -831,6 +867,15 @@
 			"request": {
 				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{request_body}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
 					"raw": "http://localhost:8080/users/{{userid}}/comments/events/{{eventid}}",
 					"protocol": "http",
@@ -916,6 +961,15 @@
 			"request": {
 				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{request_body}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
 					"raw": "http://localhost:8080/users/{{userid}}/comments/events/{{eventid}}",
 					"protocol": "http",
@@ -1003,6 +1057,15 @@
 			"request": {
 				"method": "PATCH",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{request_body}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
 					"raw": "http://localhost:8080/users/{{userid}}/comments/{{commentid}}",
 					"protocol": "http",
@@ -1317,6 +1380,11 @@
 		},
 		{
 			"key": "commentid",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "request_body",
 			"value": "",
 			"type": "string"
 		}
