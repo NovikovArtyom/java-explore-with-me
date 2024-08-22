@@ -1,5 +1,7 @@
 package ru.yandex.practicum.ewmmainservice.user.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -12,8 +14,6 @@ import ru.yandex.practicum.ewmmainservice.user.dto.UserResponseDto;
 import ru.yandex.practicum.ewmmainservice.user.model.UserEntity;
 import ru.yandex.practicum.ewmmainservice.user.service.UserService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.ewmmainservice.compilations.dto;
+package ru.yandex.practicum.ewmmainservice.comments.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -7,17 +7,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.util.List;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class CompilationsDtoRequest {
-    private List<Long> events;
-    private Boolean pinned;
+@AllArgsConstructor
+public class CommentsRequestDto {
     @NotNull
     @NotBlank
-    @Size(max = 50)
-    private String title;
+    @Size(min = 20, max = 2000)
+    private String text;
 }

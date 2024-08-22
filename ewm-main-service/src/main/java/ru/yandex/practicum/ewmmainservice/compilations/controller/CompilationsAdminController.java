@@ -1,5 +1,7 @@
 package ru.yandex.practicum.ewmmainservice.compilations.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,9 +12,6 @@ import ru.yandex.practicum.ewmmainservice.compilations.dto.CompilationsDtoRespon
 import ru.yandex.practicum.ewmmainservice.compilations.dto.CompilationsDtoUpdate;
 import ru.yandex.practicum.ewmmainservice.compilations.service.CompilationsService;
 import ru.yandex.practicum.ewmmainservice.mapper.CompilationsMapper;
-
-import javax.validation.Valid;
-import javax.validation.constraints.Positive;
 
 @RestController
 @RequestMapping("/admin/compilations")

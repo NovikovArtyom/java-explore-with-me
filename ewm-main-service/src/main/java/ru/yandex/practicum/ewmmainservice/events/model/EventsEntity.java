@@ -1,5 +1,6 @@
 package ru.yandex.practicum.ewmmainservice.events.model;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,7 +9,6 @@ import ru.yandex.practicum.ewmmainservice.categories.model.CategoriesEntity;
 import ru.yandex.practicum.ewmmainservice.location.model.LocationEntity;
 import ru.yandex.practicum.ewmmainservice.user.model.UserEntity;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity

@@ -112,4 +112,12 @@ public class ExceptionController {
                 "Ошибка валидации даты или времени!", LocalDateTime.now().format(formatter));
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handle(final CommentNotFoundException e) {
+        Long commentId = e.getCommentId();
+        log.error(String.format("Комментарий с id = %s не зарегистрирован", commentId));
+        return new ErrorResponse(HttpStatus.NOT_FOUND.toString(), "The required object was not found.",
+                String.format("Comment with id=%s was not found", commentId), LocalDateTime.now().format(formatter));
+    }
 }

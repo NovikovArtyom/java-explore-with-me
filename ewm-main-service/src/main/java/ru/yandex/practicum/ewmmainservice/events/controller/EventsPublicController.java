@@ -1,19 +1,19 @@
 package ru.yandex.practicum.ewmmainservice.events.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.ewmmainservice.constants.ServiceConstants;
+import ru.yandex.practicum.ewmmainservice.util.ServiceConstants;
 import ru.yandex.practicum.ewmmainservice.events.dto.EventResponseDto;
 import ru.yandex.practicum.ewmmainservice.events.service.EventsService;
 import ru.yandex.practicum.ewmmainservice.mapper.EventsMapper;
 import ru.yandex.practicum.statsserviceclient.client.StatsClient;
 import ru.yandex.practicum.statsservicedto.HitDtoRequest;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.yandex.practicum.ewmmainservice.constants.ServiceConstants.formatter;
+import static ru.yandex.practicum.ewmmainservice.util.ServiceConstants.formatter;
 
 @RestController
 @RequestMapping("/events")

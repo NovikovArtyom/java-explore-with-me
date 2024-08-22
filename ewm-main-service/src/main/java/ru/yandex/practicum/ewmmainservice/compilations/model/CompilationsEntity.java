@@ -1,12 +1,12 @@
 package ru.yandex.practicum.ewmmainservice.compilations.model;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.yandex.practicum.ewmmainservice.events.model.EventsEntity;
 
-import javax.persistence.*;
 import java.util.List;
 
 @Entity
